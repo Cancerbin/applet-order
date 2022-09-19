@@ -1,5 +1,14 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+	"pages": [{
+			"path": "pages/login/index",
+			"style": {
+				"navigationBarTitleText": "",
+				"navigationBarTextStyle": "black",
+				"navigationBarBackgroundColor": "#FFFFFF",
+				"backgroundColorTop": "#FFFFFF",
+				"backgroundColorBottom": "#FFFFFF"
+			}
+		},
 		{
 			"path": "pages/home/index",
 			"style": {
@@ -25,6 +34,15 @@
 			}
 		}
 	],
+	"subPackages": [{
+		"root": "packageMine",
+		"pages": [{
+			"path": "pages/mine/order/index",
+			"style": {
+				"navigationBarTitleText": "我的"
+			}
+		}]
+	}],
 	"globalStyle": {
 		"navigationBarTextStyle": "white",
 		"navigationBarTitleText": "店帮手",
