@@ -1,7 +1,14 @@
 <script>
 	export default {
 		onLaunch: function() {
-			console.log('App Launch')
+			const token = uni.getStorageSync('token');
+			const branchNo = uni.getStorageSync('branchNo');
+			// 判断是否已经登录
+			if (token && branchNo) {
+				uni.switchTab({
+					url: '/pages/home/index'
+				})
+			}
 		},
 		onShow: function() {
 			console.log('App Show')
@@ -13,5 +20,7 @@
 </script>
 
 <style>
-	/*每个页面公共css */
+	page {
+		background-color: #f0f0f0;
+	}
 </style>

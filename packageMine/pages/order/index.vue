@@ -1,0 +1,187 @@
+<template>
+	<view>
+		<u-sticky offset-top="0">
+			<view class="search">
+				<u-search v-model="condition" :show-action="false" placeholder="请输入订单号" @search="onSearch"
+					@clear="onSearch">
+				</u-search>
+			</view>
+		</u-sticky>
+		<view class="list">
+			<view class="column" v-for="item in listData" :key="item.id" @click="onViewDetail(item)">
+				<view class="content">
+					<view class="order">订单号：{{item.sheetNo}}</view>
+					<view class="status">
+						<u--text v-if="item.status === 0 && item.isPaid === 0" size="13" type="error" text="待付款"
+							align="right"></u--text>
+						<u--text v-if="item.status === 0 && item.isPaid === 1" size="13" type="error" text="支付异常"
+							align="right"></u--text>
+						<u--text v-if="item.status === 1" size="13" type="primary" text="订单确认" align="right"></u--text>
+						<u--text v-if="item.status === 2" size="13" type="primary" text="待收货" align="right"></u--text>
+						<u--text v-if="item.status === 3" size="13" type="info" text="已取消" align="right"></u--text>
+						<u--text v-if="item.status === 5" size="13" type="success" text="已完成" align="right"></u--text>
+					</view>
+				</view>
+				<u-line></u-line>
+				<view class="details">
+					<view>下单时间：{{item.createTime}}</view>
+					<view>下单数量：{{parseFloat(item.itemQty)}}件商品</view>
+					<view>付款金额：<text>￥{{$utils.formatAmount(item.payAmt)}}</text></view>
+				</view>
+			</view>
+			<u-empty v-if="!listData.length" mode="order" icon="http://cdn.uviewui.com/uview/empty/order.png"
+				marginTop="100rpx"></u-empty>
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				page: 1,
+				size: 50,
+				pages: 1,
+				queryStatus: '-1',
+				sheetNo: '',
+				condition: '',
+				listData: []
+			}
+		},
+		onLoad(options) {
+			if (options.type) {
+				let title;
+				switch (options.type) {
+					case '0':
+						title = "待付款"
+						break;
+
+					case '1':
+						title = "待收货"
+						break;
+
+					case '2':
+						title = "已完成"
+						break;
+
+					case '3':
+						title = "已取消"
+						break;
+
+					default:
+						break;
+				}
+				this.queryStatus = options.type;
+				uni.setNavigationBarTitle({
+					title
+				});
+			}
+			this.fetchOrderList();
+		},
+		onPullDownRefresh() {
+			this.page = 1;
+			this.fetchOrderList();
+			setTimeout(() => {
+				uni.stopPullDownRefresh();
+			}, 1000);
+		},
+		onReachBottom() {
+			if (this.page < this.pages) {
+				this.page += 1;
+				this.fetchOrderList();
+			}
+		},
+		methods: {
+			// 获取订单列表
+			fetchOrderList() {
+				uni.showLoading({
+					title: "加载中",
+					mask: true
+				})
+				this.$request({
+					type: "POST",
+					url: "/api/order/wechat/pmEnquiryMaster/bizPageForBranch",
+					data: {
+						current: this.page,
+						size: this.size,
+						model: {
+							queryStatus: this.queryStatus,
+							sheetNo: this.sheetNo
+						}
+					}
+				}).then(res => {
+					if (res?.code === 0) {
+						this.pages = res.data.pages;
+						if (this.page === 1) {
+							this.listData = res.data.records;
+						} else {
+							this.listData = this.listData.concat(res.data.records);
+						}
+						uni.hideLoading();
+					}
+				})
+			},
+			// 查询事件
+			onSearch() {
+				this.sheetNo = this.condition.trim();
+				this.page = 1;
+				this.fetchOrderList();
+			}
+		}
+	}
+</script>
+
+<style lang="scss">
+	page {
+		padding-bottom: calc(env(safe-area-inset-bottom) / 1.5);
+
+		.search {
+			padding: 10rpx;
+			box-shadow: 0 0 4px rgba(0, 0, 0, .2);
+			background-color: #fff;
+		}
+
+		.list {
+
+			.column {
+				margin-top: 20rpx;
+				padding: 20rpx;
+				background-color: #fff;
+
+				.content {
+					display: flex;
+					flex-direction: row;
+					padding-bottom: 20rpx;
+					line-height: 48rpx;
+
+					.order {
+						flex: 1;
+						color: #333;
+					}
+
+					.status {
+						width: 120rpx;
+					}
+				}
+
+				.details {
+					margin-top: 20rpx;
+					font-size: 24rpx;
+					color: #888;
+
+					view {
+						margin-top: 16rpx;
+
+						&:first-child {
+							margin-top: 0;
+						}
+
+						text {
+							color: #f50;
+						}
+					}
+				}
+			}
+		}
+	}
+</style>

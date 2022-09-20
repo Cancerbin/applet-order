@@ -10,6 +10,14 @@
 			}
 		},
 		{
+			"path": "pages/login/protocol/index",
+			"style": {
+				"navigationBarTitleText": "隐私政策",
+				"navigationBarTextStyle": "white",
+				"navigationBarBackgroundColor": "#377cfd"
+			}
+		},
+		{
 			"path": "pages/home/index",
 			"style": {
 				"navigationBarTitleText": "首页"
@@ -30,16 +38,19 @@
 		{
 			"path": "pages/mine/index",
 			"style": {
-				"navigationBarTitleText": "我的"
+				"navigationBarTitleText": "我的",
+				"backgroundColorTop": "#377cfd"
 			}
 		}
 	],
 	"subPackages": [{
 		"root": "packageMine",
 		"pages": [{
-			"path": "pages/mine/order/index",
+			"path": "pages/order/index",
 			"style": {
-				"navigationBarTitleText": "我的"
+				"navigationBarTitleText": "全部订单",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 50
 			}
 		}]
 	}],
