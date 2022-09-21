@@ -26,7 +26,7 @@
 				<view class="details">
 					<view>下单时间：{{item.createTime}}</view>
 					<view>下单数量：{{parseFloat(item.itemQty)}}件商品</view>
-					<view>付款金额：<text>￥{{$utils.formatAmount(item.payAmt)}}</text></view>
+					<view>付款金额：<text>￥{{$utils.formatValue(item.payAmt)}}</text></view>
 				</view>
 			</view>
 			<u-loadmore v-if="listData.length" :status="loadStatus" />

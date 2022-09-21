@@ -6,15 +6,15 @@
 					<u-row>
 						<u-col span="4">
 							<view class="title">账户总额(元)</view>
-							<view class="amount">{{$utils.formatAmount(detail.totalAmount)}}</view>
+							<view class="amount">{{$utils.formatValue(detail.totalAmount)}}</view>
 						</u-col>
 						<u-col span="4">
 							<view class="title">可用账户余额(元)</view>
-							<view class="amount">{{$utils.formatAmount(detail.availableAmount)}}</view>
+							<view class="amount">{{$utils.formatValue(detail.availableAmount)}}</view>
 						</u-col>
 						<u-col span="4">
 							<view class="title">冻结余额(元)</view>
-							<view class="amount">{{$utils.formatAmount(detail.frozenAmount)}}</view>
+							<view class="amount">{{$utils.formatValue(detail.frozenAmount)}}</view>
 						</u-col>
 					</u-row>
 				</view>
@@ -39,7 +39,7 @@
 				<view class="info">
 					<view class="main">
 						<view class="remark">{{item.remarkInfo || ''}}</view>
-						<view class="amount">{{$utils.formatAmount(item.changeAmount)}}</view>
+						<view class="amount">{{$utils.formatValue(item.changeAmount)}}</view>
 					</view>
 					<u-row>
 						<u-col span="6">
@@ -54,7 +54,7 @@
 			</view>
 			<u-loadmore v-if="listData.length" :status="loadStatus" />
 		</view>
-		<u-empty v-if="!listData.length" mode="history" icon="http://cdn.uviewui.com/uview/empty/history.png"
+		<u-empty v-if="!listData.length" mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png"
 			marginTop="80rpx"></u-empty>
 		<u-back-top :scroll-top="scrollTop"></u-back-top>
 	</view>

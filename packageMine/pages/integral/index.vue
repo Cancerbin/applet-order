@@ -16,7 +16,7 @@
 			</view>
 			<u-loadmore v-if="listData.length" :status="loadStatus" />
 		</view>
-		<u-empty v-if="!listData.length" mode="history" icon="http://cdn.uviewui.com/uview/empty/history.png"
+		<u-empty v-if="!listData.length" mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png"
 			marginTop="100rpx"></u-empty>
 		<u-back-top :scroll-top="scrollTop"></u-back-top>
 	</view>

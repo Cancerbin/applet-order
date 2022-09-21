@@ -1,10 +1,24 @@
 export default {
 	// 格式化金额
-	formatAmount: (value) => {
-		const factor = Math.pow(10, 2); // 进位因子
-		const dividend = Math.pow(10, 0 - 2); // 退位因子
+	formatValue: (value, type) => {
+		const cypherType = type || 'amount';
+		let number = 0;
+		switch (cypherType) {
+			case 'amount':
+				number = 2;
+				break;
+
+			case 'quantity':
+				number = 3;
+				break;
+
+			default:
+				break;
+		}
+		const factor = Math.pow(10, number); // 进位因子
+		const dividend = Math.pow(10, 0 - number); // 退位因子
 		const cypherValue = isNaN(value) ? 0 : (value * factor);
-		return (cypherValue.toFixed() * dividend).toFixed(2);
+		return (cypherValue.toFixed() * dividend).toFixed(number);
 	},
 	// 退出登录
 	logout: () => {
