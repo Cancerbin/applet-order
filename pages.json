@@ -46,13 +46,31 @@
 	"subPackages": [{
 		"root": "packageMine",
 		"pages": [{
-			"path": "pages/order/index",
-			"style": {
-				"navigationBarTitleText": "全部订单",
-				"enablePullDownRefresh": true,
-				"onReachBottomDistance": 50
+				"path": "pages/balance/index",
+				"style": {
+					"navigationBarTitleText": "余额",
+					"backgroundTextStyle": "light",
+					"backgroundColorTop": "#377cfd",
+					"enablePullDownRefresh": true,
+					"onReachBottomDistance": 50,
+					"backgroundColorBottom": "#FFFFFF"
+				}
+			},
+			{
+				"path": "pages/order/index",
+				"style": {
+					"navigationBarTitleText": "全部订单",
+					"enablePullDownRefresh": true,
+					"onReachBottomDistance": 50
+				}
+			},
+			{
+				"path": "pages/order/detail/index",
+				"style": {
+					"navigationBarTitleText": "订单详情"
+				}
 			}
-		}]
+		]
 	}],
 	"globalStyle": {
 		"navigationBarTextStyle": "white",

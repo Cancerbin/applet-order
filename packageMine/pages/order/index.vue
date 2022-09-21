@@ -29,9 +29,11 @@
 					<view>付款金额：<text>￥{{$utils.formatAmount(item.payAmt)}}</text></view>
 				</view>
 			</view>
-			<u-empty v-if="!listData.length" mode="order" icon="http://cdn.uviewui.com/uview/empty/order.png"
-				marginTop="100rpx"></u-empty>
+			<u-loadmore v-if="listData.length" :status="loadStatus" />
 		</view>
+		<u-empty v-if="!listData.length" mode="order" icon="http://cdn.uviewui.com/uview/empty/order.png"
+			marginTop="100rpx"></u-empty>
+		<u-back-top :scroll-top="scrollTop"></u-back-top>
 	</view>
 </template>
 
@@ -45,7 +47,9 @@
 				queryStatus: '-1',
 				sheetNo: '',
 				condition: '',
-				listData: []
+				listData: [],
+				scrollTop: 0,
+				loadStatus: 'loadmore'
 			}
 		},
 		onLoad(options) {
@@ -91,6 +95,9 @@
 				this.fetchOrderList();
 			}
 		},
+		onPageScroll(e) {
+			this.scrollTop = e.scrollTop;
+		},
 		methods: {
 			// 获取订单列表
 			fetchOrderList() {
@@ -111,12 +118,16 @@
 					}
 				}).then(res => {
 					if (res?.code === 0) {
-						this.pages = res.data.pages;
+						const {
+							records = [], pages
+						} = res.data;
+						this.pages = pages;
 						if (this.page === 1) {
-							this.listData = res.data.records;
+							this.listData = records;
 						} else {
-							this.listData = this.listData.concat(res.data.records);
+							this.listData = this.listData.concat(records);
 						}
+						this.loadStatus = this.page < pages ? 'loadmore' : 'nomore';
 						uni.hideLoading();
 					}
 				})
@@ -126,6 +137,12 @@
 				this.sheetNo = this.condition.trim();
 				this.page = 1;
 				this.fetchOrderList();
+			},
+			// 查看订单详情
+			onViewDetail(record) {
+				uni.navigateTo({
+					url: `/packageMine/pages/order/detail/index?sheetNo=${record.sheetNo}`
+				})
 			}
 		}
 	}
@@ -142,7 +159,7 @@
 		}
 
 		.list {
-
+			
 			.column {
 				margin-top: 20rpx;
 				padding: 20rpx;

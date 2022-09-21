@@ -8,6 +8,7 @@
 				marginBottom: $u.addUnit(marginBottom),
 				marginTop: $u.addUnit(marginTop),
 				height: $u.addUnit(height),
+				padding: '20rpx 0'
 			},
 		]"
 	>

@@ -63,12 +63,12 @@ export default {
         // 上边距
         marginTop: {
             type: [String, Number],
-            default: uni.$u.props.loadmore.marginTop
+            default: 0
         },
         // 下边距
         marginBottom: {
             type: [String, Number],
-            default: uni.$u.props.loadmore.marginBottom
+            default: 0
         },
         // 高度，单位px
         height: {

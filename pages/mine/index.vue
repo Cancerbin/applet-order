@@ -135,7 +135,9 @@
 		methods: {
 			// 查看余额
 			onViewBalance() {
-
+				uni.navigateTo({
+					url: '/packageMine/pages/balance/index'
+				})
 			},
 			// 查看订单
 			onViewOrder() {

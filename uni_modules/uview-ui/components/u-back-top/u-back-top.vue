@@ -119,7 +119,7 @@
 		flex:$u-back-top-flex;
 		height: $u-back-top-height;
 		justify-content: center;
-		background-color: $u-back-top-background-color;
+		background-color: rgba(0, 0, 0, .4);
 
 		&__tips {
 			font-size:$u-back-top-tips-font-size;
