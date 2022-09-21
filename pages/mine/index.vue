@@ -46,7 +46,7 @@
 					<view class="title">团购/票券</view>
 				</view>
 				<view class="content">
-					<u-grid :border="false" :col="4" @click="onClickTicket">
+					<u-grid :border="false" :col="4" @click="onActivityEvent">
 						<u-grid-item v-for="item in activityList" :key="item.text">
 							<image class="avatar" :src="item.icon"></image>
 							<text class="grid-text">{{item.text}}</text>
@@ -149,6 +149,21 @@
 			onOrderEvent(index) {
 				uni.navigateTo({
 					url: `/packageMine/pages/order/index?type=${index}`
+				})
+			},
+			// 监听活动点击事件
+			onActivityEvent(index) {
+				let url;
+				switch (index) {
+					case 2:
+						url = '/packageMine/pages/integral/index';
+						break;
+
+					default:
+						break;
+				}
+				uni.navigateTo({
+					url
 				})
 			},
 			// 监听系统服务点击事件

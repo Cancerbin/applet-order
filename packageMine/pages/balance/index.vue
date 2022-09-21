@@ -6,15 +6,15 @@
 					<u-row>
 						<u-col span="4">
 							<view class="title">账户总额(元)</view>
-							<view class="amount">{{$utils.formatAmount(details.totalAmount)}}</view>
+							<view class="amount">{{$utils.formatAmount(detail.totalAmount)}}</view>
 						</u-col>
 						<u-col span="4">
 							<view class="title">可用账户余额(元)</view>
-							<view class="amount">{{$utils.formatAmount(details.availableAmount)}}</view>
+							<view class="amount">{{$utils.formatAmount(detail.availableAmount)}}</view>
 						</u-col>
 						<u-col span="4">
 							<view class="title">冻结余额(元)</view>
-							<view class="amount">{{$utils.formatAmount(details.frozenAmount)}}</view>
+							<view class="amount">{{$utils.formatAmount(detail.frozenAmount)}}</view>
 						</u-col>
 					</u-row>
 				</view>
@@ -64,7 +64,7 @@
 	export default {
 		data() {
 			return {
-				details: {},
+				detail: {},
 				page: 1,
 				size: 50,
 				pages: 1,
@@ -102,7 +102,7 @@
 					url: `/api/authority/orgAccountApi/getByBranchNo?branchNo=${uni.getStorageSync('branchNo')}`
 				}).then(res => {
 					if (res?.code == 0) {
-						this.details = res.data;
+						this.detail = res.data;
 					}
 				})
 			},
@@ -145,7 +145,6 @@
 <style lang="scss">
 	page {
 		padding-bottom: calc(env(safe-area-inset-bottom) / 1.5);
-		background-color: #fff;
 
 		.material {
 			color: #fff;
@@ -191,6 +190,7 @@
 
 			.info {
 				padding: 20rpx;
+				background-color: #fff;
 
 				.main {
 					display: flex;
