@@ -158,9 +158,13 @@
 					case 1:
 						url = '/packageMine/pages/coupon/index';
 						break;
-						
+
 					case 2:
 						url = '/packageMine/pages/integral/index';
+						break;
+
+					case 3:
+						url = '/packageMine/pages/exchange/index';
 						break;
 
 					default:

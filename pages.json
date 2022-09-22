@@ -93,6 +93,14 @@
 					"enablePullDownRefresh": true,
 					"onReachBottomDistance": 50
 				}
+			},
+			{
+				"path": "pages/exchange/index",
+				"style": {
+					"navigationBarTitleText": "积分兑换记录",
+					"enablePullDownRefresh": true,
+					"onReachBottomDistance": 50
+				}
 			}
 		]
 	}],

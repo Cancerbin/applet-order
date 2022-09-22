@@ -25,6 +25,7 @@ export default {
 				url = value;
 			}
 		}
+		console.log(url)
 		return url;
 	},
 	// 格式化金额
