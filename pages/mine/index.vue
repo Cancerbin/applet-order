@@ -155,6 +155,10 @@
 			onActivityEvent(index) {
 				let url;
 				switch (index) {
+					case 1:
+						url = '/packageMine/pages/coupon/index';
+						break;
+						
 					case 2:
 						url = '/packageMine/pages/integral/index';
 						break;

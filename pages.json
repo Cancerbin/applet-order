@@ -77,6 +77,14 @@
 				}
 			},
 			{
+				"path": "pages/coupon/index",
+				"style": {
+					"navigationBarTitleText": "优惠券",
+					"enablePullDownRefresh": true,
+					"onReachBottomDistance": 50
+				}
+			},
+			{
 				"path": "pages/integral/index",
 				"style": {
 					"navigationBarTitleText": "积分",
