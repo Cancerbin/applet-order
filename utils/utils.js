@@ -1,4 +1,32 @@
 export default {
+	// 格式化促销类型
+	formatPromotionType(record) {
+		const {
+			price,
+			promotionType
+		} = record;
+		const dictionary = {
+			'10': '秒杀',
+			'20': '特价',
+			'30': '团购',
+			'40': '满减',
+			'50': '满赠',
+			'100': '积分兑换'
+		}
+		return parseFloat(price) === 0 && promotionType === '50' ? '赠品' : dictionary[promotionType];
+	},
+	// 格式化图片
+	formatPicture(value) {
+		let url = '/static/empty.png';
+		if (value && value !== "null" && value !== "[]") {
+			if (value.indexOf("[") >= 0) {
+				url = JSON.parse(value)[0];
+			} else {
+				url = value;
+			}
+		}
+		return url;
+	},
 	// 格式化金额
 	formatValue: (value, type) => {
 		const cypherType = type || 'amount';

@@ -70,6 +70,13 @@
 				}
 			},
 			{
+				"path": "pages/order/detail/commodity",
+				"style": {
+					"navigationBarTitleText": "商品信息",
+					"onReachBottomDistance": 50
+				}
+			},
+			{
 				"path": "pages/integral/index",
 				"style": {
 					"navigationBarTitleText": "积分",

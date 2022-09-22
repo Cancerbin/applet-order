@@ -6,7 +6,8 @@
 			</u-subsection>
 		</u-sticky>
 		<view class="container">
-			<view>
+			<view v-if="tabIndex === 0">
+				<!-- 订单信息 -->
 				<view class="card">
 					<view class="header">
 						<view class="title">订单信息</view>
@@ -27,6 +28,24 @@
 						<view class="content">{{detail.createTime}}</view>
 					</view>
 				</view>
+				<!-- 卡券信息 -->
+				<view class="card" v-if="formatCouponShowState">
+					<view class="header">
+						<view class="title">卡券信息</view>
+					</view>
+					<view class="coupon" v-if="detail.moneyCouponList && detail.moneyCouponList.length"
+						v-for="item in detail.moneyCouponList">
+						<view class="tag">现金券</view>
+						<view class="text">满{{formatAmount(item.conditionPrice)}}元减{{formatAmount(item.price)}}元
+						</view>
+					</view>
+					<view class="coupon" v-if="detail.itemCouponList && detail.itemCouponList.length"
+						v-for="item in detail.itemCouponList">
+						<view class="tag">商品券</view>
+						<view class="text">商品【{{item.itemName}}】x {{parseFloat(item.count)}}</view>
+					</view>
+				</view>
+				<!-- 付款信息 -->
 				<view class="card">
 					<view class="header">
 						<view class="title">付款信息</view>
@@ -68,6 +87,43 @@
 						<view class="content mark">￥{{formatAmount(detail.payAmt)}}</view>
 					</view>
 				</view>
+				<!-- 工具栏 -->
+				<view class="toolbar">
+					<view class="item" v-if="detail.detailsVOList">
+						<view class="btn view" @click="onViewCommodity">查看商品信息</view>
+					</view>
+					<view class="item" v-if="detail.status === 0">
+						<view class="between" v-if="detail.isPaid === 0">
+							<view class="left">
+								<view class="btn primary" @click="onSubmitCancel">取消订单</view>
+							</view>
+							<view class="right">
+								<view class="btn primary" @click="onSubmitPay">去支付</view>
+							</view>
+						</view>
+						<view class="btn primary" v-else @click="onSubmitAppeal">申诉</view>
+					</view>
+					<view class="item" v-if="detail.status === 1">
+						<view class="btn primary" @click="onSubmitCancel">取消订单</view>
+					</view>
+					<view class="item" v-if="detail.status > 1">
+						<view class="btn primary" @click="onReorder">重下此单</view>
+					</view>
+				</view>
+			</view>
+			<view v-else>
+				<view class="timeline" v-for="(item, index) in listData" :key="item.id">
+					<view class="time">{{item.createTime}}</view>
+					<view class="node">
+						<view class="dot"></view>
+						<view class="topline" v-if="index > 0"></view>
+						<view class="bottomline" v-if="index < listData.length - 1"></view>
+					</view>
+					<view class="info">
+						<u--text :text="item.title" size="24rpx" color="#666"></u--text>
+						<u--text v-if="item.memo" :text="item.memo" size="24rpx" color="#666"></u--text>
+					</view>
+				</view>
 			</view>
 		</view>
 	</view>
@@ -80,7 +136,8 @@
 				sheetNo: '',
 				tabList: ['订单详情', '订单状态'],
 				tabIndex: 0,
-				detail: {}
+				detail: {},
+				listData: []
 			}
 		},
 		onLoad(options) {
@@ -102,6 +159,82 @@
 						uni.hideLoading();
 					}
 				})
+			},
+			// 获取订单状态
+			fetchSheetState() {
+				uni.showLoading({
+					title: "加载中",
+					mask: true
+				})
+				this.$request({
+					type: 'POST',
+					url: '/api/order/wechat/pmEnquiryLog/listBySheetNo',
+					data: {
+						sheetNo: this.sheetNo
+					}
+				}).then(res => {
+					if (res?.code === 0) {
+						this.listData = res.data;
+						uni.hideLoading();
+					}
+				})
+			},
+			// 取消订单
+			onCancel() {
+				this.$request({
+					type: 'POST',
+					url: '/api/order/wechat/pmEnquiryMaster/cancelEnquiryMaster',
+					data: {
+						branchNo: uni.getStorageSync('branchNo'),
+						sheetNo: this.sheetNo
+					}
+				}).then(res => {
+					if (res?.code == 0) {
+						uni.hideLoading();
+						this.fetchDetail();
+					}
+				})
+			},
+			// 切换tab
+			onChangeTab(key) {
+				this.tabIndex = key;
+				if (key === 1) {
+					this.fetchSheetState();
+				}
+			},
+			// 查看商品信息
+			onViewCommodity() {
+				uni.navigateTo({
+					url: `/packageMine/pages/order/detail/commodity?list=${encodeURIComponent(JSON.stringify(this.detail.detailsVOList))}`
+				})
+			},
+			// 提交取消订单
+			onSubmitCancel() {
+				uni.showModal({
+					title: '提示',
+					content: '是否确认取消此订单？',
+					success: (res) => {
+						if (res.confirm) {
+							uni.showLoading({
+								title: "取消中",
+								mask: true
+							})
+							this.onCancel();
+						}
+					}
+				})
+			},
+			// 重下订单
+			onReorder() {
+				uni.showModal({
+					title: '提示',
+					content: '是否确认把订单商品加入购物车？',
+					success: (res) => {
+						if (res.confirm) {
+							console.log(this.detail.detailsVOList)
+						}
+					}
+				});
 			},
 			// 格式化金额
 			formatAmount(value) {
@@ -149,6 +282,10 @@
 			// 格式化支付方式
 			formatPayType() {
 				return this.detail.payType ? ['', '货到付款', '在线支付', '储值支付', '积分支付'][this.detail.payType] : '-'
+			},
+			// 格式化卡券信息展示状态
+			formatCouponShowState() {
+				return this.detail?.moneyCouponList?.length || this.detail?.itemCouponList?.length;
 			}
 		}
 	}
@@ -206,6 +343,125 @@
 					.mark {
 						font-size: 32rpx;
 						color: #f50;
+					}
+				}
+
+
+				.coupon {
+					display: flex;
+					margin-top: 20rpx;
+
+					.tag {
+						width: 100rpx;
+						height: 48rpx;
+						font-size: 24rpx;
+						color: #fff;
+						line-height: 48rpx;
+						text-align: center;
+						border-radius: 12rpx;
+						background-color: #f56c6c;
+					}
+
+					.text {
+						flex: 1;
+						padding-left: 16rpx;
+						font-size: 24rpx;
+						color: #999;
+						line-height: 48rpx;
+					}
+				}
+			}
+
+			.toolbar {
+
+				.item {
+					margin-top: 20rpx;
+
+					.between {
+						display: flex;
+						flex-direction: row;
+
+						.left {
+							width: 345rpx;
+						}
+
+						.right {
+							width: 345rpx;
+							padding-left: 20rpx;
+						}
+					}
+
+					.btn {
+						padding: 24rpx 0;
+						font-size: 24rpx;
+						text-align: center;
+						border-radius: 12rpx;
+					}
+
+					.view {
+						color: #377CFD;
+						box-shadow: 0 3rpx 3rpx rgba(0, 0, 0, .1);
+						background-color: #fff;
+					}
+
+					.primary {
+						color: #fff;
+						background: linear-gradient(to bottom, #88b1ff, #377cfd);
+					}
+				}
+			}
+
+			.timeline {
+				display: flex;
+				font-size: 24rpx;
+				color: #666;
+
+				.time {
+					width: 160rpx;
+					padding-top: 30rpx;
+					text-align: center;
+				}
+
+				.node {
+					position: relative;
+					width: 25rpx;
+					padding: 50rpx 20rpx 0;
+
+					.dot {
+						width: 25rpx;
+						height: 25rpx;
+						border-radius: 12rpx;
+						background-color: #999;
+					}
+
+					.topline {
+						position: absolute;
+						top: 0;
+						left: 50%;
+						width: 2rpx;
+						height: 50rpx;
+						background-color: #999;
+						transform: translateX(-50%);
+					}
+
+					.bottomline {
+						position: absolute;
+						top: 50rpx;
+						left: 50%;
+						width: 2rpx;
+						height: calc(100% - 50rpx);
+						background-color: #999;
+						transform: translateX(-50%);
+					}
+				}
+
+				.info {
+					flex: 1;
+					padding-top: 46rpx;
+					padding-left: 8rpx;
+
+					.u-text__value {
+						word-break: break-all;
 					}
 				}
 			}

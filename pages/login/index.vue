@@ -14,7 +14,7 @@
 				</view>
 				<view class="formItem">
 					<u-input v-model="password" :password="isPassword" :focus="isFocus" placeholder="请输入密码"
-						border="none" @blur="onPasswordBlur">
+						border="none" @blur="onPasswordBlur" @confirm="onSubmit">
 						<template slot="suffix">
 							<u-icon slot="right" :name="icon" color="#999" size="20" @click="onChangeIcon">
 							</u-icon>
@@ -82,19 +82,29 @@
 		},
 		methods: {
 			// 校验微信用户
-			onVerifyWxAccount(record) {
-				this.$request({
-					url: "/api/oauth/anno/wxCodeVerify",
-					data: {
-						code: record.code,
-						appid: this.appId
-					}
-				}).then(res => {
-					if (res?.code === 0) {
-						uni.setStorageSync('code', record.code);
-						uni.setStorageSync('tenant', res.data.tenant);
-						uni.setStorageSync('openid', res.data.openid);
-						this.onLogin();
+			onVerifyWxAccount() {
+				uni.showLoading({
+					title: '登录中',
+					mask: true
+				})
+
+				uni.login({
+					provider: 'weixin',
+					success: (record) => {
+						this.$request({
+							url: "/api/oauth/anno/wxCodeVerify",
+							data: {
+								code: record.code,
+								appid: this.appId
+							}
+						}).then(res => {
+							if (res?.code === 0) {
+								uni.setStorageSync('code', record.code);
+								uni.setStorageSync('tenant', res.data.tenant);
+								uni.setStorageSync('openid', res.data.openid);
+								this.onLogin();
+							}
+						})
 					}
 				})
 			},
@@ -106,21 +116,22 @@
 					data: {
 						account: this.account,
 						password: this.password,
-						grantType: "order_mall"
+						grantType: "order_mall",
+						loginSrc: "5"
 					}
 				}).then(res => {
 					if (res?.code === 0) {
 						uni.setStorageSync('token', res.data.token);
 						uni.setStorageSync('isProtocol', 'true');
 						uni.setStorageSync('account', this.account);
-						this.fetchUserInfo(res.data);
+						this.fetchUserInfo(res);
 					}
 				})
 			},
 			// 获取用户信息
 			fetchUserInfo(record) {
 				this.$request({
-					url: `/api/authority/user/queryUserDetailById/${record.userId}`
+					url: `/api/authority/user/queryUserDetailById/${record.data.userId}`
 				}).then(res => {
 					if (res?.code === 0) {
 						const {
@@ -136,18 +147,21 @@
 						uni.setStorageSync('branchName', org.orgName);
 						// 缓存配送中心
 						uni.setStorageSync('transBranchNo', org.transBranchNo);
-						// 缓存登录状态
-						uni.showToast({
-							title: '登录成功',
-							icon: 'success',
-							duration: 1500,
-							mask: true,
-							success: () => {
-								uni.switchTab({
-									url: '/pages/home/index'
-								})
-							}
-						})
+						// 判断是否需要拦截提示
+						if (record?.extra?.showTipFlag === '1') {
+							uni.showModal({
+								title: '提示',
+								content: record.msg,
+								showCancel: false,
+								success: (result) => {
+									if (result.confirm) {
+										this.onJump();
+									}
+								}
+							});
+						} else {
+							this.onJump();
+						}
 					}
 				})
 			},
@@ -176,6 +190,8 @@
 			},
 			// 提交登录
 			onSubmit() {
+				const account = uni.getStorageSync('account');
+				const cacheList = uni.getStorageSync('cacheList') || [];
 				let failStatus = false;
 				let failText = '';
 
@@ -206,15 +222,31 @@
 					return;
 				}
 
-				uni.showLoading({
-					title: '登录中',
-					mask: true
-				})
-
-				uni.login({
-					provider: 'weixin',
-					success: (res) => {
-						this.onVerifyWxAccount(res);
+				if (account && account !== this.account && cacheList.length) {
+					uni.showModal({
+						title: '提示',
+						content: '切换帐号会清空购物车数据，是否继续？',
+						success: (res) => {
+							if (res.confirm) {
+								uni.removeStorageSync('cacheList');
+								this.onVerifyWxAccount();
+							}
+						}
+					});
+				} else {
+					this.onVerifyWxAccount();
+				}
+			},
+			onJump() {
+				uni.showToast({
+					title: '登录成功',
+					icon: 'success',
+					duration: 1500,
+					mask: true,
+					success: () => {
+						uni.switchTab({
+							url: '/pages/home/index'
+						})
 					}
 				})
 			}
