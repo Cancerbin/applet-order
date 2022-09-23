@@ -69,6 +69,7 @@
 				size: 50,
 				pages: 1,
 				listData: [],
+				isLoading: false,
 				scrollTop: 0,
 				loadStatus: 'loadmore'
 			}
@@ -86,7 +87,7 @@
 			}, 1000);
 		},
 		onReachBottom() {
-			if (this.page < this.pages) {
+			if (!this.isLoading && this.page < this.pages) {
 				this.page += 1;
 				this.fetchChangeList();
 			}
@@ -108,6 +109,7 @@
 			},
 			// 获取变更记录
 			fetchChangeList() {
+				this.isLoading = true;
 				uni.showLoading({
 					title: "加载中",
 					mask: true
@@ -123,6 +125,7 @@
 						}
 					}
 				}).then(res => {
+					this.isLoading = false;
 					if (res?.code === 0) {
 						const {
 							records = [], pages

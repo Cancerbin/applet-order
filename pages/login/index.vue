@@ -147,6 +147,8 @@
 						uni.setStorageSync('branchName', org.orgName);
 						// 缓存配送中心
 						uni.setStorageSync('transBranchNo', org.transBranchNo);
+						// 缓存渠道类型
+						uni.setStorageSync('channelType', org.channelType);
 						// 判断是否需要拦截提示
 						if (record?.extra?.showTipFlag === '1') {
 							uni.showModal({

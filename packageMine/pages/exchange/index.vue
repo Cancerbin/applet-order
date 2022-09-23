@@ -29,6 +29,7 @@
 				size: 20,
 				pages: 1,
 				listData: [],
+				isLoading: false,
 				loadStatus: 'loadmore'
 			}
 		},
@@ -43,7 +44,7 @@
 			}, 1000);
 		},
 		onReachBottom() {
-			if (this.page < this.pages) {
+			if (!this.isLoading && this.page < this.pages) {
 				this.page += 1;
 				this.fetchExchangeRecord();
 			}
@@ -51,6 +52,7 @@
 		methods: {
 			// 获取兑换记录
 			fetchExchangeRecord() {
+				this.isLoading = true;
 				uni.showLoading({
 					title: "加载中",
 					mask: true
@@ -64,6 +66,7 @@
 						model: {}
 					}
 				}).then(res => {
+					this.isLoading = false;
 					if (res?.code === 0) {
 						const {
 							records = [], pages

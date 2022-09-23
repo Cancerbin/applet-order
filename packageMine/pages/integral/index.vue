@@ -31,6 +31,7 @@
 				size: 50,
 				pages: 1,
 				listData: [],
+				isLoading: false,
 				scrollTop: 0,
 				loadStatus: 'loadmore'
 			}
@@ -48,7 +49,7 @@
 			}, 1000);
 		},
 		onReachBottom() {
-			if (this.page < this.pages) {
+			if (!this.isLoading && this.page < this.pages) {
 				this.page += 1;
 				this.fetchIntegralRecord();
 			}
@@ -70,6 +71,7 @@
 			},
 			// 获取积分记录
 			fetchIntegralRecord() {
+				this.isLoading = true;
 				uni.showLoading({
 					title: "加载中",
 					mask: true
@@ -83,6 +85,7 @@
 						model: {}
 					}
 				}).then(res => {
+					this.isLoading = false;
 					if (res?.code === 0) {
 						const {
 							records = [], pages
