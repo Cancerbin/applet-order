@@ -73,6 +73,10 @@
 			this.fetchMenu();
 			this.fetchCommodityList();
 		},
+		onShow() {
+			this.listData = this.$utils.onSyncNumber(this.listData);
+			this.$utils.updateCart();
+		},
 		methods: {
 			// 获取菜单
 			fetchMenu() {
@@ -163,7 +167,7 @@
 			// 查看商品
 			onViewCommodity(index) {
 				uni.navigateTo({
-					url: `/packageCategory/pages/detail/index?detail=${encodeURIComponent(this.listData[index])}`
+					url: `/packageCategory/pages/detail/index?detail=${encodeURIComponent(JSON.stringify(this.listData[index]))}`
 				})
 			},
 			// 修改数量

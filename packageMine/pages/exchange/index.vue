@@ -3,8 +3,8 @@
 		<view class="list">
 			<view class="option" v-for="item in listData" :key="item.id">
 				<view class="picture">
-					<u-image :src="$utils.formatPicture(item.picUrl)" :lazyLoad="false" :fade="false" width="140rpx"
-						height="140rpx">
+					<u-image :src="$utils.formatPicture(item.picUrl)" :lazyLoad="false" :fade="false" mode="aspectFit"
+						width="140rpx" height="140rpx">
 					</u-image>
 				</view>
 				<view class="content">

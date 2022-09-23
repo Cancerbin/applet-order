@@ -13,8 +13,8 @@ export default {
 	},
 	// 增加数量
 	onPlusNumber(record) {
-		const factor = record.itemQty ? parseFloat(record.minOrderAmt || 1) : parseFloat(record.orderChangeAmt || 1);
-		const number = (record.itemQty || 0) + factor;
+		const factor = record.itemQty ? parseFloat(record.orderChangeAmt || 1) : parseFloat(record.minOrderAmt || 1);
+		const number = record.itemQty + factor;
 		return new Promise((resolve, reject) => {
 			if (number <= parseFloat(record.inventoryQuantity)) {
 				if ((record.maxOrderAmt && number <= parseFloat(record.maxOrderAmt)) || !record.maxOrderAmt) {
@@ -39,8 +39,9 @@ export default {
 	},
 	// 减少数量
 	onReduceNumber(record) {
-		const factor = record.itemQty ? parseFloat(record.minOrderAmt || 1) : parseFloat(record.orderChangeAmt || 1);
-		const number = (record.itemQty || 0) - factor;
+		const factor = record.itemQty > parseFloat(record.minOrderAmt || 1) ? parseFloat(record.orderChangeAmt || 1) :
+			parseFloat(record.minOrderAmt || 1);
+		const number = record.itemQty - factor;
 		return new Promise((resolve, reject) => {
 			if (number) {
 				resolve(number);
@@ -56,6 +57,55 @@ export default {
 						}
 					}
 				});
+			}
+		})
+	},
+	// 更新数量
+	onUpdateNumber(record, number) {
+		// 判断是否需要计算
+		const isCalcFlag = number > parseFloat(record.minOrderAmt || 1);
+		const calcValue = number > parseFloat(record.minOrderAmt || 1) ?
+			(number - parseFloat(record.minOrderAmt || 1)) :
+			(number ? parseFloat(record.minOrderAmt || 1) : 0);
+		let realityValue = calcValue;
+		if (isCalcFlag) {
+			realityValue = parseFloat(record.minOrderAmt || 1) + (Math.ceil(calcValue / parseFloat(record
+				.orderChangeAmt || 1)) * parseFloat(record.orderChangeAmt || 1))
+		}
+		return new Promise((resolve, reject) => {
+			if (realityValue <= parseFloat(record.inventoryQuantity)) {
+				if ((record.maxOrderAmt && realityValue <= parseFloat(record.maxOrderAmt)) || !record
+					.maxOrderAmt) {
+					if (realityValue) {
+						resolve(realityValue);
+					} else {
+						uni.showModal({
+							title: '提示',
+							content: '是否确定删除所选商品？',
+							success: (res) => {
+								if (res.confirm) {
+									resolve(0)
+								} else {
+									reject();
+								}
+							}
+						});
+					}
+				} else {
+					uni.showModal({
+						title: '提示',
+						content: '采购数量不能超过限购数量',
+						showCancel: false
+					});
+					reject()
+				}
+			} else {
+				uni.showModal({
+					title: '提示',
+					content: '库存数量不足',
+					showCancel: false
+				});
+				reject();
 			}
 		})
 	},
@@ -84,18 +134,19 @@ export default {
 	// 更新购物车
 	updateCart() {
 		const cacheList = uni.getStorageSync('cacheList') || [];
+		const tabIndex = 2;
 		let count = 0;
 		cacheList.forEach(item => {
 			count += item.itemQty;
 		})
 		if (count) {
 			uni.setTabBarBadge({
-				index: 2,
+				index: tabIndex,
 				text: `${count}`
 			})
 		} else {
 			uni.removeTabBarBadge({
-				index: 3
+				index: tabIndex
 			})
 		}
 	},

@@ -1,19 +1,16 @@
 <template>
 	<view class="module" @click.stop="onClick">
 		<view class="picture">
-			<u-image :src="$utils.formatPicture(detail.picUrl)" :lazyLoad="false" :fade="false" width="180rpx"
-				height="180rpx">
+			<u-image :src="$utils.formatPicture(detail.picUrl)" :lazyLoad="false" :fade="false" mode="aspectFit"
+				width="208rpx" height="208rpx">
 			</u-image>
 			<view class="cover" v-if="parseFloat(detail.inventoryQuantity) <= 0">补货中</view>
 		</view>
 		<view class="material">
-			<view class="title">
-				<text class="activity" v-if="detail.giftAndReduceVO || detail.promotionItemVO">
-					{{$utils.formatPromotionActivity(detail)}}
-				</text>
-				<text>{{detail.itemName}}</text>
+			<view class="base">
+				<view class="title">{{detail.itemName}}</view>
+				<view class="date">生产日期：{{detail.productionStart || '见包装'}}</view>
 			</view>
-			<view class="date">生产日期：{{detail.productionStart || '见包装'}}</view>
 			<view class="price">
 				<text>￥{{formatDeliveryPrice()}}/{{detail.unitName}}</text>
 				<text class="special" v-if="formatSpecialFlag()">
@@ -21,15 +18,18 @@
 				</text>
 			</view>
 			<view class="operate">
+				<view class="activity" v-if="detail.giftAndReduceVO || detail.promotionItemVO">
+					{{$utils.formatPromotionActivity(detail)}}
+				</view>
 				<view class="placeholder"></view>
-				<view class="tips" v-if="!formatNumberShow">
+				<view class="tips" v-if="!detail.itemQty">
 					起订数量{{parseFloat(detail.minOrderAmt || 1)}}
 				</view>
-				<view class="reduce" v-if="formatNumberShow" @click.stop="onReduce">
+				<view class="reduce" v-if="detail.itemQty" @click.stop="onReduce">
 					<u-image src="/static/commodity/icon_reduce.png" width="48rpx" height="48rpx">
 					</u-image>
 				</view>
-				<view class="number" v-if="formatNumberShow">
+				<view class="number" v-if="detail.itemQty">
 					{{detail.itemQty}}
 				</view>
 				<view class="plus" @click.stop="onPlus">
@@ -98,16 +98,6 @@
 				}
 				return flag;
 			}
-		},
-		computed: {
-			// 格式化数量展示
-			formatNumberShow() {
-				let flag = false;
-				if (this.detail.itemQty) {
-					flag = true;
-				}
-				return flag;
-			}
 		}
 	}
 </script>
@@ -120,15 +110,15 @@
 
 		.picture {
 			position: relative;
-			width: 180rpx;
-			min-height: 180rpx;
+			width: 208rpx;
+			min-height: 208rpx;
 
 			.cover {
 				position: absolute;
 				top: 0;
 				left: 0;
-				width: 180rpx;
-				height: 180rpx;
+				width: 208rpx;
+				height: 208rpx;
 				font-size: 32rpx;
 				color: #fff;
 				text-align: center;
@@ -142,28 +132,25 @@
 			padding-left: 20rpx;
 			overflow: hidden;
 
-			.title {
-				font-size: 28rpx;
-				color: #333;
-				line-height: 44rpx;
-				word-break: break-all;
+			.base {
+				height: 108rpx;
 
-				.activity {
-					display: inline-block;
-					margin-right: 10rpx;
-					padding: 0 12rpx;
-					font-size: 20rpx;
-					font-weight: normal;
-					color: #fff;
-					border-radius: 6rpx;
-					background-color: #f56c6c;
+				.title {
+					max-height: 72rpx;
+					font-size: 28rpx;
+					color: #333;
+					line-height: 36rpx;
+					word-break: break-all;
+					overflow: hidden;
 				}
-			}
 
-			.date {
-				margin-top: 8rpx;
-				font-size: 24rpx;
-				color: #999;
+				.date {
+					height: 28rpx;
+					margin-top: 8rpx;
+					font-size: 24rpx;
+					color: #999;
+					line-height: 28rpx;
+				}
 			}
 
 			.price {
@@ -183,8 +170,17 @@
 			.operate {
 				display: flex;
 				flex-direction: row;
-				margin-top: 8rpx;
+				margin-top: 6rpx;
 				line-height: 48rpx;
+
+				.activity {
+					padding: 0 12rpx;
+					font-size: 20rpx;
+					font-weight: normal;
+					color: #fff;
+					border-radius: 6rpx;
+					background-color: #f56c6c;
+				}
 
 				.placeholder {
 					flex: 1;
