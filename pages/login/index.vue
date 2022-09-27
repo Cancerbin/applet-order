@@ -54,6 +54,7 @@
 		onLoad() {
 			const appId = wx.getAccountInfoSync().miniProgram.appId;
 			const account = uni.getStorageSync('account');
+			const password = uni.getStorageSync('password');
 			const isProtocol = uni.getStorageSync('isProtocol');
 
 			// 根据appId渲染不同logo和标题
@@ -75,10 +76,17 @@
 				this.account = account;
 			}
 
+			// 密码赋值
+			if (password) {
+				this.password = password;
+			}
+
 			// 协议勾选状态赋值
 			if (isProtocol) {
 				this.isProtocol = true;
 			}
+
+			this.$utils.onVerifyLogin();
 		},
 		methods: {
 			// 校验微信用户
@@ -124,6 +132,8 @@
 						uni.setStorageSync('token', res.data.token);
 						uni.setStorageSync('isProtocol', 'true');
 						uni.setStorageSync('account', this.account);
+						uni.setStorageSync('password', this.password);
+						uni.setStorageSync('expiration', res.data.expiration);
 						this.fetchUserInfo(res);
 					}
 				})
@@ -147,6 +157,8 @@
 						uni.setStorageSync('branchName', org.orgName);
 						// 缓存配送中心
 						uni.setStorageSync('transBranchNo', org.transBranchNo);
+						uni.setStorageSync('transBranchName', org.transBranchName);
+						uni.setStorageSync('deliveryPrice', org.other4);
 						// 缓存渠道类型
 						uni.setStorageSync('channelType', org.channelType);
 						// 判断是否需要拦截提示

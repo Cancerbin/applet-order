@@ -107,6 +107,7 @@
 		display: flex;
 		flex-direction: row;
 		padding: 20rpx;
+		background-color: #fff;
 
 		.picture {
 			position: relative;

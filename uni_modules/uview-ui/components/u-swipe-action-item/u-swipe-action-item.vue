@@ -132,6 +132,7 @@
 			// #endif
 			// 按钮被点击
 			buttonClickHandler(item, index) {
+				this.status = 'close';
 				this.$emit('click', {
 					index,
 					name: this.name

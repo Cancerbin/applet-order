@@ -7,7 +7,7 @@
 				<view class="title">分类</view>
 				<view class="extra">
 					<u-search placeholder="搜索您想要的商品" :disabled="true" :showAction="false" height="28px"
-						@click="onLinkSearch"></u-search>
+						@click="onJump"></u-search>
 				</view>
 			</view>
 		</view>
@@ -122,6 +122,12 @@
 						this.loadStatus = this.page < pages ? 'loadmore' : 'nomore';
 						uni.hideLoading();
 					}
+				})
+			},
+			// 跳转路由
+			onJump() {
+				uni.navigateTo({
+					url: '/packageCategory/pages/search/index'
 				})
 			},
 			// 点击菜单事件

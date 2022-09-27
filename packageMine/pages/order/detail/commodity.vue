@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<view class="container">
-			<view class="wrapper" v-for="(item, index) in listData" :key="item.id">
+			<view class="wrapper" v-for="(item, index) in listData" v-if="index < limitNumber" :key="item.id">
 				<view class="avatar">
 					<u-image :src="$utils.formatPicture(item.picUrl)" :lazyLoad="false" :fade="false" mode="aspectFit"
 						width="140rpx" height="140rpx">
@@ -42,17 +42,17 @@
 	export default {
 		data() {
 			return {
-				sourceList: [],
 				listData: [],
 				page: 1,
 				size: 20,
 				pages: 1,
+				limitNumber: 0,
 				loadStatus: 'loadmore'
 			}
 		},
 		onLoad(options) {
-			this.sourceList = JSON.parse(decodeURIComponent(options.list));
-			this.pages = Math.ceil(this.sourceList.length / this.size);
+			this.listData = JSON.parse(decodeURIComponent(options.list));
+			this.pages = Math.ceil(this.listData.length / this.size);
 			this.loadData();
 		},
 		onReachBottom() {
@@ -64,8 +64,7 @@
 		methods: {
 			// 加载数据
 			loadData() {
-				const loadData = this.sourceList.slice((this.page - 1) * this.size, this.page * this.size);
-				this.listData = this.listData.concat(loadData);
+				this.limitNumber = this.page * this.size;
 				this.loadStatus = this.page < this.pages ? 'loadmore' : 'nomore';
 			},
 			// 格式化金额

@@ -126,10 +126,40 @@
 				</view>
 			</view>
 		</view>
+
+		<!-- 支付弹窗 -->
+		<u-modal :show="payModalVisible" :showCancelButton="true" title="订单支付" @confirm="onPay" @cancel="onCloseModal">
+			<view class="modal">
+				<view class="amount">￥{{formatAmount(detail.payAmt)}}</view>
+				<view class="content">
+					<view v-for="item in paymentList" :key="item.type">
+						<u-line></u-line>
+						<view class="column" @click="onChangePayment(item.type)">
+							<view class="picture">
+								<u-image width="36rpx" height="36rpx" :src="item.url"></u-image>
+							</view>
+							<view class="text">
+								{{item.text}}
+								<text v-if="item.type === 'cz'">(余额：￥{{formatAmount(balance)}})</text>
+							</view>
+							<view class="check">
+								<u--image :src="formatCheck(item.type)" width="40rpx" height="40rpx"></u--image>
+							</view>
+						</view>
+					</view>
+					<u-line></u-line>
+				</view>
+			</view>
+		</u-modal>
+
+		<!-- 支付弹窗 -->
+		<recharge v-if="rechargeModalVisible" :payAmt="formatAmount(detail.payAmt)" :sheetNo="sheetNo"
+			@onReult="onRechargeResult" />
 	</view>
 </template>
 
 <script>
+	import recharge from '@/components/recharge/index.vue';
 	export default {
 		data() {
 			return {
@@ -137,7 +167,22 @@
 				tabList: ['订单详情', '订单状态'],
 				tabIndex: 0,
 				detail: {},
-				listData: []
+				listData: [],
+				balance: 0,
+				paymentList: [{
+						type: 'cz',
+						url: '/static/cart/icon_cz.png',
+						text: '储值支付',
+					},
+					{
+						type: 'wx',
+						url: '/static/cart/icon_wx.png',
+						text: '微信支付',
+					}
+				],
+				paymentType: 'cz',
+				payModalVisible: false,
+				rechargeModalVisible: false
 			}
 		},
 		onLoad(options) {
@@ -178,6 +223,43 @@
 						uni.hideLoading();
 					}
 				})
+			},
+			// 获取余额
+			fetchBalance() {
+				this.$request({
+					type: 'POST',
+					url: `/api/authority/orgAccountApi/getByBranchNo?branchNo=${uni.getStorageSync('branchNo')}`,
+				}).then(res => {
+					if (res?.code == 0) {
+						this.balance = parseFloat(res.data.availableAmount || 0);
+					}
+				})
+			},
+			// 获取支付结果
+			fetchPaymentResult() {
+				this.$utils.onInquirePaymentResult(this.sheetNo)
+					.then(() => {
+						uni.showToast({
+							icon: "success",
+							title: '支付成功',
+							mask: true,
+							duration: 2000,
+							success: () => {
+								this.payModalVisible = false;
+							}
+						})
+						setTimeout(() => {
+							this.fetchDetail();
+						}, 2000)
+					})
+					.catch((error) => {
+						uni.showToast({
+							icon: "fail",
+							title: '支付失败',
+							mask: true,
+							duration: 2000
+						})
+					})
 			},
 			// 取消订单
 			onCancel() {
@@ -224,17 +306,202 @@
 					}
 				})
 			},
+			// 支付订单
+			onSubmitPay() {
+				this.fetchBalance();
+				this.payModalVisible = true;
+			},
+			// 申诉订单
+			onSubmitAppeal() {
+				uni.showModal({
+					title: '提示',
+					content: '是否确定申诉该订单？',
+					success: (result) => {
+						if (result.confirm) {
+							uni.showLoading({
+								title: "申诉中",
+								mask: true
+							})
+							this.$utils.onStoredValuePayment(this.sheetNo, true)
+								.then(() => {
+									uni.showToast({
+										icon: "success",
+										title: '申诉成功',
+										mask: true,
+										duration: 2000
+									})
+									setTimeout(() => {
+										this.fetchDetail();
+									}, 2000)
+								})
+						}
+					}
+				})
+			},
 			// 重下订单
 			onReorder() {
 				uni.showModal({
 					title: '提示',
 					content: '是否确认把订单商品加入购物车？',
-					success: (res) => {
-						if (res.confirm) {
-							console.log(this.detail.detailsVOList)
+					success: (result) => {
+						if (result.confirm) {
+							uni.showLoading({
+								title: '加载中',
+								mask: true
+							})
+							this.$request({
+								url: '/api/order/wechat/shopCart/reorderByNoNew',
+								type: 'POST',
+								data: {
+									sheetNo: this.sheetNo
+								}
+							}).then(res => {
+								if (res?.code === 0) {
+									uni.showToast({
+										icon: "success",
+										title: '成功加入',
+										mask: true,
+										duration: 2000
+									})
+									res.data.forEach(item => {
+										let number = parseFloat(item.reorderCount);
+										delete item.reorderCount;
+										this.$utils.updateCache(item, number);
+									})
+								}
+							})
 						}
 					}
 				});
+			},
+			// 选择支付方式
+			onChangePayment(type) {
+				this.paymentType = type;
+			},
+			// 关闭弹窗
+			onCloseModal() {
+				this.payModalVisible = false;
+			},
+			// 支付
+			onPay() {
+				uni.showModal({
+					title: '提示',
+					content: '是否确定支付该订单？',
+					success: (res) => {
+						if (res.confirm) {
+							uni.showLoading({
+								title: "支付中",
+								mask: true
+							})
+							if (this.paymentType === 'cz') {
+								this.onStoredValuePayment();
+							} else {
+								this.onWxPayment();
+							}
+						}
+					}
+				})
+			},
+			// 储值支付
+			onStoredValuePayment() {
+				this.$utils.onStoredValuePayment(this.sheetNo)
+					.then(() => {
+						uni.showToast({
+							icon: "success",
+							title: '支付成功',
+							mask: true,
+							duration: 2000,
+							success: () => {
+								this.payModalVisible = false;
+							}
+						})
+						setTimeout(() => {
+							this.fetchDetail();
+						}, 2000)
+					})
+					.catch(error => {
+						if (error.code === -100) {
+							uni.showModal({
+								title: '提示',
+								content: '当前余额不足，是否充值支付？',
+								success: (result) => {
+									if (result.confirm) {
+										this.payModalVisible = false;
+										this.rechargeModalVisible = true;
+									} else {
+										uni.showToast({
+											icon: "error",
+											title: "支付失败",
+											mask: true,
+											duration: 2000
+										});
+									}
+								}
+							})
+						} else {
+							uni.showToast({
+								icon: "error",
+								title: "支付失败",
+								mask: true,
+								duration: 2000
+							});
+						}
+					})
+			},
+			// 微信支付
+			onWxPayment() {
+				this.$utils.onWxPayment({
+						sheetNo: this.sheetNo
+					})
+					.then(() => {
+						this.fetchPaymentResult();
+					})
+					.catch(() => {
+						uni.showToast({
+							icon: 'error',
+							title: '支付失败',
+							mask: true,
+							duration: 2000
+						})
+					});
+			},
+			// 获取充值结果
+			onRechargeResult(type) {
+				this.rechargeModalVisible = false;
+				switch (type) {
+					case 'cancel':
+						uni.showToast({
+							icon: 'error',
+							title: '充值失败',
+							mask: true,
+							duration: 2000
+						})
+						break;
+
+					case 'fail':
+						uni.showToast({
+							icon: 'error',
+							title: '支付失败',
+							mask: true,
+							duration: 2000
+						})
+						break;
+
+					case 'fail':
+						uni.showToast({
+							icon: "success",
+							title: '支付成功',
+							mask: true,
+							duration: 2000
+						})
+						setTimeout(() => {
+							this.fetchDetail();
+						}, 2000)
+						break;
+
+					default:
+						break;
+				}
 			},
 			// 格式化金额
 			formatAmount(value) {
@@ -243,6 +510,10 @@
 			// 格式化数量
 			formatQuantity(value) {
 				return this.$utils.formatValue(value, 'quantity');
+			},
+			// 格式化付款方式选中状态
+			formatCheck(type) {
+				return `/static/cart/icon_${type === this.paymentType ? '' : 'un'}checked.png`;
 			}
 		},
 		computed: {
@@ -287,6 +558,9 @@
 			formatCouponShowState() {
 				return this.detail?.moneyCouponList?.length || this.detail?.itemCouponList?.length;
 			}
+		},
+		components: {
+			recharge
 		}
 	}
 </script>
@@ -462,6 +736,48 @@
 
 					.u-text__value {
 						word-break: break-all;
+					}
+				}
+			}
+		}
+
+		.modal {
+			width: 100%;
+
+			.amount {
+				font-size: 40rpx;
+				font-weight: bold;
+				color: #f50;
+				text-align: center;
+			}
+
+			.content {
+				margin-top: 50rpx;
+
+				.column {
+					display: flex;
+					flex-direction: row;
+					padding: 20rpx;
+
+					.picture {
+						width: 48rpx;
+						padding: 4rpx 0;
+					}
+
+					.text {
+						flex: 1;
+						height: 44rpx;
+						line-height: 44rpx;
+
+						text {
+							padding-left: 6rpx;
+							font-size: 24rpx;
+							color: #999;
+						}
+					}
+
+					.check {
+						padding: 2rpx 0;
 					}
 				}
 			}

@@ -132,6 +132,9 @@
 		onLoad() {
 			this.userName = uni.getStorageSync('userName');
 		},
+		onShow() {
+			this.$utils.updateCart();
+		},
 		methods: {
 			// 查看余额
 			onViewBalance() {
@@ -155,6 +158,10 @@
 			onActivityEvent(index) {
 				let url;
 				switch (index) {
+					case 0:
+						url = '/packageMine/pages/group/index';
+						break;
+						
 					case 1:
 						url = '/packageMine/pages/coupon/index';
 						break;

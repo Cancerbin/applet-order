@@ -78,6 +78,14 @@
 					}
 				},
 				{
+					"path": "pages/group/index",
+					"style": {
+						"navigationBarTitleText": "团购",
+						"enablePullDownRefresh": true,
+						"onReachBottomDistance": 50
+					}
+				},
+				{
 					"path": "pages/coupon/index",
 					"style": {
 						"navigationBarTitleText": "优惠券",
@@ -109,9 +117,29 @@
 			"root": "packageCategory",
 			"pages": [
 				{
+					"path": "pages/search/index",
+					"style": {
+						"navigationBarTitleText": "商品搜索",
+						"enablePullDownRefresh": true,
+						"onReachBottomDistance": 50
+					}
+				},
+				{
 					"path": "pages/detail/index",
 					"style": {
 						"navigationBarTitleText": "商品详情"
+					}
+				}
+			]
+		},
+		{
+			"root": "packageCart",
+			"pages": [
+				{
+					"path": "pages/settlement/index",
+					"style": {
+						"navigationBarTitleText": "结算",
+						"onReachBottomDistance": 50
 					}
 				}
 			]

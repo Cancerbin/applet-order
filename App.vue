@@ -1,14 +1,7 @@
 <script>
 	export default {
 		onLaunch: function() {
-			const token = uni.getStorageSync('token');
-			const branchNo = uni.getStorageSync('branchNo');
-			// 判断是否已经登录
-			if (token && branchNo) {
-				uni.switchTab({
-					url: '/pages/home/index'
-				})
-			}
+			this.$utils.onVerifyLogin();
 		},
 		onShow: function() {
 			console.log('App Show')
