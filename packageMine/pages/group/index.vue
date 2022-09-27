@@ -3,7 +3,7 @@
 		<u-sticky offset-top="0">
 			<view class="banner">
 				<picture :url="banner" />
-				<view class="view" @click="onView">查看团购订单</view>
+				<view class="view" @click="onViewOrder">查看团购订单</view>
 			</view>
 		</u-sticky>
 
@@ -131,6 +131,18 @@
 			// 更新倒计时
 			onUpdateTime(e) {
 				this.timeData = e
+			},
+			// 查看订单
+			onViewOrder() {
+				uni.navigateTo({
+					url: './order/index'
+				})
+			},
+			// 参团
+			onJoin(record) {
+				uni.navigateTo({
+					url: `./detail/index?detail=${encodeURIComponent(JSON.stringify(record))}`
+				})
 			}
 		},
 		components: {

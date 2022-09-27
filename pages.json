@@ -86,6 +86,26 @@
 					}
 				},
 				{
+					"path": "pages/group/order/index",
+					"style": {
+						"navigationBarTitleText": "团购订单",
+						"enablePullDownRefresh": true,
+						"onReachBottomDistance": 50
+					}
+				},
+				{
+					"path": "pages/group/order/detail",
+					"style": {
+						"navigationBarTitleText": "订单详情"
+					}
+				},
+				{
+					"path": "pages/group/detail/index",
+					"style": {
+						"navigationBarTitleText": "团购详情"
+					}
+				},
+				{
 					"path": "pages/coupon/index",
 					"style": {
 						"navigationBarTitleText": "优惠券",
