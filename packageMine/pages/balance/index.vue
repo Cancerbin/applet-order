@@ -1,40 +1,38 @@
 <template>
 	<view class="layout">
-		<view class="top">
-			<view class="material">
-				<view class="balance">
-					<u-row>
-						<u-col span="4">
-							<view class="title">账户总额(元)</view>
-							<view class="amount">{{$utils.formatValue(detail.totalAmount)}}</view>
-						</u-col>
-						<u-col span="4">
-							<view class="title">可用账户余额(元)</view>
-							<view class="amount">{{$utils.formatValue(detail.availableAmount)}}</view>
-						</u-col>
-						<u-col span="4">
-							<view class="title">冻结余额(元)</view>
-							<view class="amount">{{$utils.formatValue(detail.frozenAmount)}}</view>
-						</u-col>
-					</u-row>
-				</view>
-				<view class="tab">
-					<u-row>
-						<u-col span="6">
-							<view class="column">
-								<text class="active">变更记录</text>
-							</view>
-						</u-col>
-						<u-col span="6">
-							<view class="column">
-								<text>授信明细</text>
-							</view>
-						</u-col>
-					</u-row>
-				</view>
+		<view class="material">
+			<view class="balance">
+				<u-row>
+					<u-col span="4">
+						<view class="title">账户总额(元)</view>
+						<view class="amount">{{$utils.formatValue(detail.totalAmount)}}</view>
+					</u-col>
+					<u-col span="4">
+						<view class="title">可用账户余额(元)</view>
+						<view class="amount">{{$utils.formatValue(detail.availableAmount)}}</view>
+					</u-col>
+					<u-col span="4">
+						<view class="title">冻结余额(元)</view>
+						<view class="amount">{{$utils.formatValue(detail.frozenAmount)}}</view>
+					</u-col>
+				</u-row>
+			</view>
+			<view class="tab">
+				<u-row>
+					<u-col span="6">
+						<view class="column">
+							<text class="active">变更记录</text>
+						</view>
+					</u-col>
+					<u-col span="6">
+						<view class="column">
+							<text>授信明细</text>
+						</view>
+					</u-col>
+				</u-row>
 			</view>
 		</view>
-		<view class="bottom">
+		<view class="container">
 			<scroll-view class="scroll" :scroll-y="true" :scroll-top="scrollTop" :show-scrollbar="false"
 				:refresher-threshold="50" :refresher-triggered="refreshStatus" :lower-threshold="100"
 				:scroll-with-animation="true" refresher-enabled="true" @refresherrefresh="onRefreshData"
@@ -174,50 +172,47 @@
 			flex-direction: column;
 			height: 100%;
 
-			.top {
+			.material {
+				color: #fff;
+				background-color: #377cfd;
 
-				.material {
-					color: #fff;
-					background-color: #377cfd;
+				.balance {
+					padding: 20rpx 0;
 
-					.balance {
-						padding: 20rpx 0;
-
-						.title {
-							font-size: 24rpx;
-							text-align: center;
-						}
-
-						.amount {
-							margin-top: 12rpx;
-							text-align: center;
-						}
+					.title {
+						font-size: 24rpx;
+						text-align: center;
 					}
 
-					.tab {
-						background-color: rgba(255, 255, 255, .5);
+					.amount {
+						margin-top: 12rpx;
+						text-align: center;
+					}
+				}
 
-						.column {
-							padding: 8rpx 0;
-							text-align: center;
+				.tab {
+					background-color: rgba(255, 255, 255, .5);
 
-							text {
-								display: inline-block;
-								padding: 20rpx 8rpx 16rpx;
-								color: rgba(255, 255, 255, .6);
-								border-bottom: 4rpx solid transparent;
+					.column {
+						padding: 8rpx 0;
+						text-align: center;
 
-								&.active {
-									color: #fff;
-									border-color: #f1f1f1;
-								}
+						text {
+							display: inline-block;
+							padding: 20rpx 8rpx 16rpx;
+							color: rgba(255, 255, 255, .6);
+							border-bottom: 4rpx solid transparent;
+
+							&.active {
+								color: #fff;
+								border-color: #f1f1f1;
 							}
 						}
 					}
 				}
 			}
 
-			.bottom {
+			.container {
 				flex: 1;
 				height: 100%;
 				overflow: hidden;

@@ -160,6 +160,12 @@
 						})
 						break;
 
+					case '8':
+						uni.navigateTo({
+							url: '/packageHome/pages/coupon/index'
+						})
+						break;
+
 					default:
 						break;
 				}

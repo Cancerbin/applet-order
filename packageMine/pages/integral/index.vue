@@ -1,24 +1,29 @@
 <template>
-	<view>
-		<u-sticky offset-top="0">
-			<view class="material">我的积分：{{parseFloat(detail.jifen || 0)}}</view>
-		</u-sticky>
-		<view class="list">
-			<view v-for="item in listData" :key="item.id">
-				<view class="option">
-					<view class="title">
-						<view>{{formatText(item.changeType)}}</view>
-						<view>{{item.createTime}}</view>
+	<view class="layout">
+		<view class="material">我的积分：{{parseFloat(detail.jifen || 0)}}</view>
+		<view class="container">
+			<scroll-view class="scroll" :scroll-y="true" :scroll-top="scrollTop" :show-scrollbar="false"
+				:refresher-threshold="50" :refresher-triggered="refreshStatus" :lower-threshold="100"
+				:scroll-with-animation="true" refresher-enabled="true" @refresherrefresh="onRefreshData"
+				@scrolltolower="onLoadData" @scroll="onScroll">
+				<view class="list">
+					<view v-for="item in listData" :key="item.id">
+						<view class="option">
+							<view class="title">
+								<view>{{formatText(item.changeType)}}</view>
+								<view>{{item.createTime}}</view>
+							</view>
+							<view class="change">{{formatIntegral(item.changeJifen)}}</view>
+						</view>
+						<u-line></u-line>
 					</view>
-					<view class="change">{{formatIntegral(item.changeJifen)}}</view>
+					<u-loadmore v-if="listData.length" :status="loadStatus" />
+					<u-empty v-if="!listData.length" mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png"
+						marginTop="100rpx"></u-empty>
 				</view>
-				<u-line></u-line>
-			</view>
-			<u-loadmore v-if="listData.length" :status="loadStatus" />
+			</scroll-view>
 		</view>
-		<u-empty v-if="!listData.length" mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png"
-			marginTop="100rpx"></u-empty>
-		<u-back-top :scroll-top="scrollTop"></u-back-top>
+		<u-back-top :scroll-top="realScrollTop" @click="onBackTop"></u-back-top>
 	</view>
 </template>
 
@@ -33,29 +38,14 @@
 				listData: [],
 				isLoading: false,
 				scrollTop: 0,
+				realScrollTop: 0,
+				refreshStatus: false,
 				loadStatus: 'loadmore'
 			}
 		},
 		onLoad() {
 			this.fetchIntegral();
 			this.fetchIntegralRecord();
-		},
-		onPullDownRefresh() {
-			this.page = 1;
-			this.fetchIntegral();
-			this.fetchIntegralRecord();
-			setTimeout(() => {
-				uni.stopPullDownRefresh();
-			}, 1000);
-		},
-		onReachBottom() {
-			if (!this.isLoading && this.page < this.pages) {
-				this.page += 1;
-				this.fetchIntegralRecord();
-			}
-		},
-		onPageScroll(e) {
-			this.scrollTop = e.scrollTop;
 		},
 		methods: {
 			// 获取积分
@@ -86,6 +76,7 @@
 					}
 				}).then(res => {
 					this.isLoading = false;
+					this.refreshStatus = false;
 					if (res?.code === 0) {
 						const {
 							records = [], pages
@@ -100,6 +91,32 @@
 						uni.hideLoading();
 					}
 				})
+			},
+			// 监听滚动事件
+			onScroll(e) {
+				this.realScrollTop = e.detail.scrollTop;
+			},
+			// 刷新数据
+			onRefreshData() {
+				this.refreshStatus = true;
+				this.page = 1;
+				this.listData = [];
+				this.fetchIntegral();
+				this.fetchIntegralRecord();
+			},
+			// 加载数据
+			onLoadData() {
+				if (!this.isLoading && this.page < this.pages) {
+					this.page += 1;
+					this.fetchIntegralRecord();
+				}
+			},
+			// 返回顶部
+			onBackTop() {
+				this.scrollTop = this.realScrollTop;
+				this.$nextTick(() => {
+					this.scrollTop = 0;
+				});
 			},
 			// 格式化积分类型
 			formatText(type) {
@@ -116,40 +133,58 @@
 
 <style lang="scss">
 	page {
-		padding-bottom: calc(env(safe-area-inset-bottom) / 1.5);
+		height: 100%;
+		overflow: hidden;
 
-		.material {
-			padding: 20rpx;
-			font-size: 28rpx;
-			color: #fff;
-			background-color: #377CFD;
-		}
+		.layout {
+			display: flex;
+			flex-direction: column;
+			height: 100%;
 
-		.list {
-
-			.option {
+			.material {
 				padding: 20rpx;
-				background-color: #fff;
+				font-size: 28rpx;
+				color: #fff;
+				background-color: #377CFD;
+			}
 
-				.title {
-					display: flex;
-					flex-direction: row;
-					line-height: 36rpx;
+			.container {
+				flex: 1;
+				height: 100%;
+				overflow: hidden;
 
-					view {
-						flex: 1;
+				.scroll {
+					height: 100%;
 
-						&:last-child {
-							font-size: 24rpx;
-							color: #666;
-							text-align: right;
+					.list {
+						padding-bottom: calc(env(safe-area-inset-bottom) / 1.5);
+
+						.option {
+							padding: 20rpx;
+							background-color: #fff;
+
+							.title {
+								display: flex;
+								flex-direction: row;
+								line-height: 36rpx;
+
+								view {
+									flex: 1;
+
+									&:last-child {
+										font-size: 24rpx;
+										color: #666;
+										text-align: right;
+									}
+								}
+							}
+
+							.change {
+								margin-top: 10rpx;
+								text-align: right;
+							}
 						}
 					}
-				}
-
-				.change {
-					margin-top: 10rpx;
-					text-align: right;
 				}
 			}
 		}

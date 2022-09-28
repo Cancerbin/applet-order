@@ -75,9 +75,7 @@
 				{
 					"path": "pages/group/index",
 					"style": {
-						"navigationBarTitleText": "团购",
-						"enablePullDownRefresh": true,
-						"onReachBottomDistance": 50
+						"navigationBarTitleText": "团购"
 					}
 				},
 				{
@@ -103,19 +101,13 @@
 				{
 					"path": "pages/coupon/index",
 					"style": {
-						"navigationBarTitleText": "优惠券",
-						"enablePullDownRefresh": true,
-						"onReachBottomDistance": 50
+						"navigationBarTitleText": "优惠券"
 					}
 				},
 				{
 					"path": "pages/integral/index",
 					"style": {
-						"navigationBarTitleText": "积分",
-						"backgroundTextStyle": "light",
-						"backgroundColorTop": "#377cfd",
-						"enablePullDownRefresh": true,
-						"onReachBottomDistance": 50
+						"navigationBarTitleText": "积分"
 					}
 				},
 				{
@@ -134,9 +126,7 @@
 				{
 					"path": "pages/search/index",
 					"style": {
-						"navigationBarTitleText": "商品搜索",
-						"enablePullDownRefresh": true,
-						"onReachBottomDistance": 50
+						"navigationBarTitleText": "商品搜索"
 					}
 				},
 				{
@@ -154,6 +144,22 @@
 					"path": "pages/settlement/index",
 					"style": {
 						"navigationBarTitleText": "结算",
+						"onReachBottomDistance": 50
+					}
+				}
+			]
+		},
+		{
+			"root": "packageHome",
+			"pages": [
+				{
+					"path": "pages/coupon/index",
+					"style": {
+						"navigationBarTitleText": "领券",
+						"navigationBarTextStyle": "white",
+						"backgroundColorTop": "#f66550",
+						"backgroundColorBottom": "#f66550",
+						"enablePullDownRefresh": true,
 						"onReachBottomDistance": 50
 					}
 				}

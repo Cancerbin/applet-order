@@ -1,40 +1,47 @@
 <template>
-	<view>
-		<u-sticky offset-top="0">
-			<view class="search">
-				<view class="scan" @click="onScan">
-					<u-icon name="scan" size="64rpx"></u-icon>
-				</view>
-				<view class="content">
-					<u-search v-model="condition" height="64rpx" placeholder="请输入商品信息" actionText="取消"
-						@search="onSearch" @clear="onSearch" @custom="onCancel">
-					</u-search>
-				</view>
+	<view class="layout">
+		<view class="search">
+			<view class="scan" @click="onScan">
+				<u-icon name="scan" size="64rpx"></u-icon>
 			</view>
-		</u-sticky>
-		<view class="history" v-if="isHistory">
-			<view class="title">
-				<view class="text">历史记录</view>
-				<view class="action" @click="onClearHistory">
-					<u-icon name="trash" size="48rpx"></u-icon>
-				</view>
+			<view class="content">
+				<u-search v-model="condition" height="64rpx" placeholder="请输入商品信息" actionText="取消" @search="onSearch"
+					@clear="onSearch" @custom="onCancel">
+				</u-search>
 			</view>
-			<view class="details" v-if="searchList.length">
-				<text v-for="item in searchList" :key="item" @click="this.onQuickSearch(item)">{{item}}</text>
-			</view>
-			<u-empty v-else mode="history" icon="http://cdn.uviewui.com/uview/empty/history.png" marginTop="100rpx">
-			</u-empty>
 		</view>
-		<view class="result" v-else>
-			<view v-for="(item, index) in listData" :key="item.id">
-				<commodity :detail="item" :index="index" @onModify="this.onModifyNumber"
-					@onClick="this.onViewCommodity" />
-				<u-line></u-line>
-			</view>
-			<u-loadmore v-if="listData.length" :status="loadStatus" />
-			<u-empty v-else mode="list" icon="http://cdn.uviewui.com/uview/empty/list.png" marginTop="100rpx"></u-empty>
-			<u-back-top :scroll-top="scrollTop"></u-back-top>
+		<view class="container">
+			<scroll-view class="scroll" :scroll-y="true" :scroll-top="scrollTop" :show-scrollbar="false"
+				:refresher-threshold="50" :refresher-triggered="refreshStatus" :lower-threshold="100"
+				:scroll-with-animation="true" :refresher-enabled="!isHistory" @refresherrefresh="onRefreshData"
+				@scrolltolower="onLoadData" @scroll="onScroll">
+				<view class="history" v-if="isHistory">
+					<view class="title">
+						<view class="text">历史记录</view>
+						<view class="action" @click="onClearHistory">
+							<u-icon name="trash" size="48rpx"></u-icon>
+						</view>
+					</view>
+					<view class="details" v-if="searchList.length">
+						<text v-for="item in searchList" :key="item" @click="this.onQuickSearch(item)">{{item}}</text>
+					</view>
+					<u-empty v-else mode="history" icon="http://cdn.uviewui.com/uview/empty/history.png"
+						marginTop="100rpx">
+					</u-empty>
+				</view>
+				<view class="result" v-else>
+					<view v-for="(item, index) in listData" :key="item.id">
+						<commodity :detail="item" :index="index" @onModify="this.onModifyNumber"
+							@onClick="this.onViewCommodity" />
+						<u-line></u-line>
+					</view>
+					<u-loadmore v-if="listData.length" :status="loadStatus" />
+					<u-empty v-else mode="list" icon="http://cdn.uviewui.com/uview/empty/list.png" marginTop="100rpx">
+					</u-empty>
+				</view>
+			</scroll-view>
 		</view>
+		<u-back-top :scroll-top="realScrollTop" @click="onBackTop"></u-back-top>
 	</view>
 </template>
 
@@ -53,6 +60,8 @@
 				condition: '',
 				searchList: [],
 				scrollTop: 0,
+				realScrollTop: 0,
+				refreshStatus: false,
 				loadStatus: 'loadmore'
 			}
 		},
@@ -64,27 +73,6 @@
 		},
 		onShow() {
 			this.listData = this.$utils.onSyncNumber(this.listData);
-		},
-		onPullDownRefresh() {
-			if (this.isHistory) {
-				uni.stopPullDownRefresh();
-				return;
-			}
-			this.page = 1;
-			this.listData = [];
-			this.fetchCommodityList();
-			setTimeout(() => {
-				uni.stopPullDownRefresh();
-			}, 1000);
-		},
-		onReachBottom() {
-			if (!this.isLoading && this.page < this.pages) {
-				this.page += 1;
-				this.fetchCommodityList();
-			}
-		},
-		onPageScroll(e) {
-			this.scrollTop = e.scrollTop;
 		},
 		methods: {
 			// 获取商品列表
@@ -107,6 +95,7 @@
 					}
 				}).then(res => {
 					this.isLoading = false;
+					this.refreshStatus = false;
 					this.onUpdateSearchCache();
 					if (res?.code === 0) {
 						const {
@@ -202,6 +191,31 @@
 						this.searchList = searchCache;
 					}
 				}
+			},
+			// 监听滚动事件
+			onScroll(e) {
+				this.realScrollTop = e.detail.scrollTop;
+			},
+			// 刷新数据
+			onRefreshData() {
+				this.refreshStatus = true;
+				this.page = 1;
+				this.listData = [];
+				this.fetchCommodityList();
+			},
+			// 加载数据
+			onLoadData() {
+				if (!this.isHistory && !this.isLoading && this.page < this.pages) {
+					this.page += 1;
+					this.fetchCommodityList();
+				}
+			},
+			// 返回顶部
+			onBackTop() {
+				this.scrollTop = this.realScrollTop;
+				this.$nextTick(() => {
+					this.scrollTop = 0;
+				});
 			}
 		},
 		components: {
@@ -212,60 +226,82 @@
 
 <style lang="scss">
 	page {
-		padding-bottom: calc(env(safe-area-inset-bottom) / 1.5);
+		height: 100%;
+		overflow: hidden;
 
-		.search {
+		.layout {
 			display: flex;
-			flex-direction: row;
-			padding: 10rpx;
-			box-shadow: 0 0 4px rgba(0, 0, 0, .2);
-			background-color: #fff;
+			flex-direction: column;
+			height: 100%;
 
-			.scan {
-				width: 74rpx;
-				padding: 3rpx 0;
-			}
-
-			.content {
-				flex: 1;
-				overflow: hidden;
-			}
-		}
-
-		.history {
-			margin-top: 16rpx;
-			padding: 0 20rpx;
-
-			.title {
+			.search {
+				position: relative;
 				display: flex;
 				flex-direction: row;
+				padding: 10rpx;
+				box-shadow: 0 0 4px rgba(0, 0, 0, .2);
+				background-color: #fff;
+				z-index: 2;
 
-				.text {
-					flex: 1;
-					padding: 20rpx 0;
-					font-size: 28rpx;
-					color: #333;
-					line-height: 36rpx;
+				.scan {
+					width: 74rpx;
+					padding: 3rpx 0;
 				}
 
-				.action {
-					padding: 14rpx;
+				.content {
+					flex: 1;
+					overflow: hidden;
 				}
 			}
 
-			.details {
+			.container {
+				flex: 1;
+				height: 100%;
+				overflow: hidden;
 
-				text {
-					display: inline-block;
-					margin-bottom: 16rpx;
-					margin-right: 20rpx;
-					padding: 10rpx 26rpx;
-					font-size: 24rpx;
-					color: #3c9cff;
-					line-height: 32rpx;
-					border: 1rpx solid #3c9cff;
-					border-radius: 6rpx;
-					background-color: #ecf5ff;
+				.scroll {
+					height: 100%;
+
+					.history {
+						padding: 16rpx 20rpx calc(env(safe-area-inset-bottom) / 1.5);
+
+						.title {
+							display: flex;
+							flex-direction: row;
+
+							.text {
+								flex: 1;
+								padding: 20rpx 0;
+								font-size: 28rpx;
+								color: #333;
+								line-height: 36rpx;
+							}
+
+							.action {
+								padding: 14rpx;
+							}
+						}
+
+						.details {
+
+							text {
+								display: inline-block;
+								margin-bottom: 16rpx;
+								margin-right: 20rpx;
+								padding: 10rpx 26rpx;
+								font-size: 24rpx;
+								color: #3c9cff;
+								line-height: 32rpx;
+								border: 1rpx solid #3c9cff;
+								border-radius: 6rpx;
+								background-color: #ecf5ff;
+							}
+						}
+					}
+
+					.result {
+						padding-bottom: calc(env(safe-area-inset-bottom) / 1.5);
+					}
 				}
 			}
 		}

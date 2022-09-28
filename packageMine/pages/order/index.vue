@@ -1,13 +1,11 @@
 <template>
 	<view class="layout">
-		<view class="top">
-			<view class="search">
-				<u-search v-model="condition" :show-action="false" placeholder="请输入订单号" @search="onSearch"
-					@clear="onSearch">
-				</u-search>
-			</view>
+		<view class="search">
+			<u-search v-model="condition" :show-action="false" placeholder="请输入订单号" @search="onSearch"
+				@clear="onSearch">
+			</u-search>
 		</view>
-		<view class="bottom">
+		<view class="container">
 			<scroll-view class="scroll" :scroll-y="true" :scroll-top="scrollTop" :show-scrollbar="false"
 				:refresher-threshold="50" :refresher-triggered="refreshStatus" :lower-threshold="100"
 				:scroll-with-animation="true" refresher-enabled="true" @refresherrefresh="onRefreshData"
@@ -183,18 +181,15 @@
 			flex-direction: column;
 			height: 100%;
 
-			.top {
-				
-				.search {
-					position: relative;
-					padding: 10rpx;
-					box-shadow: 0 0 4px rgba(0, 0, 0, .2);
-					background-color: #fff;
-					z-index: 2;
-				}
+			.search {
+				position: relative;
+				padding: 10rpx;
+				box-shadow: 0 0 4px rgba(0, 0, 0, .2);
+				background-color: #fff;
+				z-index: 2;
 			}
 
-			.bottom {
+			.container {
 				flex: 1;
 				height: 100%;
 				overflow: hidden;
@@ -203,6 +198,7 @@
 					height: 100%;
 
 					.list {
+						padding-top: 20rpx;
 						padding-bottom: calc(env(safe-area-inset-bottom) / 1.5);
 
 						.column {
@@ -242,6 +238,10 @@
 										color: #f50;
 									}
 								}
+							}
+
+							&:first-child {
+								margin-top: 0;
 							}
 						}
 					}
