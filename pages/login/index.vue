@@ -95,7 +95,6 @@
 					title: '登录中',
 					mask: true
 				})
-
 				uni.login({
 					provider: 'weixin',
 					success: (record) => {

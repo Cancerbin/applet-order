@@ -1,39 +1,50 @@
 <template>
-	<view>
-		<u-sticky offset-top="0">
+	<view class="layout">
+		<view class="top">
 			<view class="search">
 				<u-search v-model="condition" :show-action="false" placeholder="请输入订单号" @search="onSearch"
 					@clear="onSearch">
 				</u-search>
 			</view>
-		</u-sticky>
-		<view class="list">
-			<view class="column" v-for="item in listData" :key="item.id" @click="onViewDetail(item)">
-				<view class="content">
-					<view class="order">订单号：{{item.sheetNo}}</view>
-					<view class="status">
-						<u--text v-if="item.status === 0 && item.isPaid === 0" size="13" type="error" text="待付款"
-							align="right"></u--text>
-						<u--text v-if="item.status === 0 && item.isPaid === 1" size="13" type="error" text="支付异常"
-							align="right"></u--text>
-						<u--text v-if="item.status === 1" size="13" type="primary" text="订单确认" align="right"></u--text>
-						<u--text v-if="item.status === 2" size="13" type="primary" text="待收货" align="right"></u--text>
-						<u--text v-if="item.status === 3" size="13" type="info" text="已取消" align="right"></u--text>
-						<u--text v-if="item.status === 5" size="13" type="success" text="已完成" align="right"></u--text>
-					</view>
-				</view>
-				<u-line></u-line>
-				<view class="details">
-					<view>下单时间：{{item.createTime}}</view>
-					<view>下单数量：{{parseFloat(item.itemQty)}}件商品</view>
-					<view>付款金额：<text>￥{{$utils.formatValue(item.payAmt)}}</text></view>
-				</view>
-			</view>
-			<u-loadmore v-if="listData.length" :status="loadStatus" />
 		</view>
-		<u-empty v-if="!listData.length" mode="order" icon="http://cdn.uviewui.com/uview/empty/order.png"
-			marginTop="100rpx"></u-empty>
-		<u-back-top :scroll-top="scrollTop"></u-back-top>
+		<view class="bottom">
+			<scroll-view class="scroll" :scroll-y="true" :scroll-top="scrollTop" :show-scrollbar="false"
+				:refresher-threshold="50" :refresher-triggered="refreshStatus" :lower-threshold="100"
+				:scroll-with-animation="true" refresher-enabled="true" @refresherrefresh="onRefreshData"
+				@scrolltolower="onLoadData" @scroll="onScroll">
+				<view class="list">
+					<view class="column" v-for="item in listData" :key="item.id" @click="onViewDetail(item)">
+						<view class="content">
+							<view class="order">订单号：{{item.sheetNo}}</view>
+							<view class="status">
+								<u--text v-if="item.status === 0 && item.isPaid === 0" size="13" type="error" text="待付款"
+									align="right"></u--text>
+								<u--text v-if="item.status === 0 && item.isPaid === 1" size="13" type="error"
+									text="支付异常" align="right"></u--text>
+								<u--text v-if="item.status === 1" size="13" type="primary" text="订单确认" align="right">
+								</u--text>
+								<u--text v-if="item.status === 2" size="13" type="primary" text="待收货" align="right">
+								</u--text>
+								<u--text v-if="item.status === 3" size="13" type="info" text="已取消" align="right">
+								</u--text>
+								<u--text v-if="item.status === 5" size="13" type="success" text="已完成" align="right">
+								</u--text>
+							</view>
+						</view>
+						<u-line></u-line>
+						<view class="details">
+							<view>下单时间：{{item.createTime}}</view>
+							<view>下单数量：{{parseFloat(item.itemQty)}}件商品</view>
+							<view>付款金额：<text>￥{{$utils.formatValue(item.payAmt)}}</text></view>
+						</view>
+					</view>
+					<u-loadmore v-if="listData.length" :status="loadStatus" />
+				</view>
+				<u-empty v-if="!listData.length" mode="order" icon="http://cdn.uviewui.com/uview/empty/order.png"
+					marginTop="100rpx"></u-empty>
+			</scroll-view>
+		</view>
+		<u-back-top :scroll-top="realScrollTop" @click="onBackTop"></u-back-top>
 	</view>
 </template>
 
@@ -50,6 +61,8 @@
 				listData: [],
 				isLoading: false,
 				scrollTop: 0,
+				realScrollTop: 0,
+				refreshStatus: false,
 				loadStatus: 'loadmore'
 			}
 		},
@@ -83,22 +96,6 @@
 			}
 			this.fetchOrderList();
 		},
-		onPullDownRefresh() {
-			this.page = 1;
-			this.fetchOrderList();
-			setTimeout(() => {
-				uni.stopPullDownRefresh();
-			}, 1000);
-		},
-		onReachBottom() {
-			if (!this.isLoading && this.page < this.pages) {
-				this.page += 1;
-				this.fetchOrderList();
-			}
-		},
-		onPageScroll(e) {
-			this.scrollTop = e.scrollTop;
-		},
 		methods: {
 			// 获取订单列表
 			fetchOrderList() {
@@ -120,6 +117,7 @@
 					}
 				}).then(res => {
 					this.isLoading = false;
+					this.refreshStatus = false;
 					if (res?.code === 0) {
 						const {
 							records = [], pages
@@ -139,6 +137,7 @@
 			onSearch() {
 				this.sheetNo = this.condition.trim();
 				this.page = 1;
+				this.listData = [];
 				this.fetchOrderList();
 			},
 			// 查看订单详情
@@ -146,6 +145,29 @@
 				uni.navigateTo({
 					url: `/packageMine/pages/order/detail/index?sheetNo=${record.sheetNo}`
 				})
+			},
+			// 监听滚动事件
+			onScroll(e) {
+				this.realScrollTop = e.detail.scrollTop;
+			},
+			// 刷新数据
+			onRefreshData() {
+				this.refreshStatus = true;
+				this.onSearch();
+			},
+			// 加载数据
+			onLoadData() {
+				if (!this.isLoading && this.page < this.pages) {
+					this.page += 1;
+					this.fetchOrderList();
+				}
+			},
+			// 返回顶部
+			onBackTop() {
+				this.scrollTop = this.realScrollTop;
+				this.$nextTick(() => {
+					this.scrollTop = 0;
+				});
 			}
 		}
 	}
@@ -153,51 +175,74 @@
 
 <style lang="scss">
 	page {
-		padding-bottom: calc(env(safe-area-inset-bottom) / 1.5);
+		height: 100%;
+		overflow: hidden;
 
-		.search {
-			padding: 10rpx;
-			box-shadow: 0 0 4px rgba(0, 0, 0, .2);
-			background-color: #fff;
-		}
+		.layout {
+			display: flex;
+			flex-direction: column;
+			height: 100%;
 
-		.list {
-			
-			.column {
-				margin-top: 20rpx;
-				padding: 20rpx;
-				background-color: #fff;
-
-				.content {
-					display: flex;
-					flex-direction: row;
-					padding-bottom: 20rpx;
-					line-height: 48rpx;
-
-					.order {
-						flex: 1;
-						color: #333;
-					}
-
-					.status {
-						width: 120rpx;
-					}
+			.top {
+				
+				.search {
+					position: relative;
+					padding: 10rpx;
+					box-shadow: 0 0 4px rgba(0, 0, 0, .2);
+					background-color: #fff;
+					z-index: 2;
 				}
+			}
 
-				.details {
-					margin-top: 20rpx;
-					font-size: 24rpx;
-					color: #888;
+			.bottom {
+				flex: 1;
+				height: 100%;
+				overflow: hidden;
 
-					view {
-						margin-top: 16rpx;
+				.scroll {
+					height: 100%;
 
-						&:first-child {
-							margin-top: 0;
-						}
+					.list {
+						padding-bottom: calc(env(safe-area-inset-bottom) / 1.5);
 
-						text {
-							color: #f50;
+						.column {
+							margin-top: 20rpx;
+							padding: 20rpx;
+							background-color: #fff;
+
+							.content {
+								display: flex;
+								flex-direction: row;
+								padding-bottom: 20rpx;
+								line-height: 48rpx;
+
+								.order {
+									flex: 1;
+									color: #333;
+								}
+
+								.status {
+									width: 120rpx;
+								}
+							}
+
+							.details {
+								margin-top: 20rpx;
+								font-size: 24rpx;
+								color: #888;
+
+								view {
+									margin-top: 16rpx;
+
+									&:first-child {
+										margin-top: 0;
+									}
+
+									text {
+										color: #f50;
+									}
+								}
+							}
 						}
 					}
 				}

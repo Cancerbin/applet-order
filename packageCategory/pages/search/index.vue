@@ -56,8 +56,11 @@
 				loadStatus: 'loadmore'
 			}
 		},
-		onLoad() {
+		onLoad(options) {
 			this.searchList = uni.getStorageSync('searchCache') || [];
+			if (options?.scan === 'true') {
+				this.onScan();
+			}
 		},
 		onShow() {
 			this.listData = this.$utils.onSyncNumber(this.listData);

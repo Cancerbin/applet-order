@@ -20,7 +20,8 @@
 		{
 			"path": "pages/home/index",
 			"style": {
-				"navigationBarTitleText": "首页"
+				"navigationBarTitleText": "首页",
+				"navigationStyle": "custom"
 			}
 		},
 		{
@@ -49,19 +50,13 @@
 			"pages": [{
 					"path": "pages/balance/index",
 					"style": {
-						"navigationBarTitleText": "余额",
-						"backgroundTextStyle": "light",
-						"backgroundColorTop": "#377cfd",
-						"enablePullDownRefresh": true,
-						"onReachBottomDistance": 50
+						"navigationBarTitleText": "余额"
 					}
 				},
 				{
 					"path": "pages/order/index",
 					"style": {
-						"navigationBarTitleText": "全部订单",
-						"enablePullDownRefresh": true,
-						"onReachBottomDistance": 50
+						"navigationBarTitleText": "全部订单"
 					}
 				},
 				{
