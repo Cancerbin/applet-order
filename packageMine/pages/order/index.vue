@@ -191,6 +191,7 @@
 			height: 100%;
 
 			.container {
+				padding-top: 20rpx;
 				padding-bottom: calc(env(safe-area-inset-bottom) / 1.5);
 
 				.option {
