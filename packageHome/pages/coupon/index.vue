@@ -93,6 +93,28 @@
 					}
 				})
 			},
+			// 领券
+			onReceive(record) {
+				uni.showLoading({
+					title: "领取中",
+					mask: true
+				})
+				this.$request({
+					type: 'POST',
+					url: '/api/order/wechat/coupon/activity/receiveCoupon',
+					data: {
+						activityCode: record.activityCode
+					}
+				}).then(res => {
+					if (res?.code === 0) {
+						uni.hideLoading();
+						uni.showToast({
+							title: '领取成功',
+							duration: 2000
+						});
+					}
+				})
+			},
 			// 格式化时间
 			formatDate(value) {
 				return value.substring(0, 10);

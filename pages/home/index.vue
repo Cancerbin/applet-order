@@ -166,6 +166,12 @@
 						})
 						break;
 
+					case '9':
+						uni.navigateTo({
+							url: '/packageHome/pages/exchange/index'
+						})
+						break;
+
 					default:
 						break;
 				}
