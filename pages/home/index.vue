@@ -154,6 +154,12 @@
 						})
 						break;
 
+					case '6':
+						uni.navigateTo({
+							url: '/packageHome/pages/spike/index'
+						})
+						break;
+
 					case '7':
 						uni.navigateTo({
 							url: '/packageMine/pages/group/index'

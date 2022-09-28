@@ -1,5 +1,5 @@
 <template>
-	<view class="layout">
+	<layout>
 		<view class="material">
 			<view class="balance">
 				<u-row>
@@ -32,40 +32,40 @@
 				</u-row>
 			</view>
 		</view>
-		<view class="container">
-			<scroll-view class="scroll" :scroll-y="true" :scroll-top="scrollTop" :show-scrollbar="false"
-				:refresher-threshold="50" :refresher-triggered="refreshStatus" :lower-threshold="100"
-				:scroll-with-animation="true" refresher-enabled="true" @refresherrefresh="onRefreshData"
-				@scrolltolower="onLoadData" @scroll="onScroll">
-				<view class="list">
-					<view v-for="item in listData" :key="item.id">
-						<view class="info">
-							<view class="main">
-								<view class="remark">{{item.remarkInfo || ''}}</view>
-								<view class="amount">{{$utils.formatValue(item.changeAmount)}}</view>
-							</view>
-							<u-row>
-								<u-col span="6">
-									<view class="sheet">{{item.relateOrderNo}}</view>
-								</u-col>
-								<u-col span="6">
-									<view class="time">{{item.createTime}}</view>
-								</u-col>
-							</u-row>
+		<scroll-view slot="bottom" class="scroll" :scroll-y="true" :scroll-top="scrollTop" :show-scrollbar="false"
+			:refresher-threshold="50" :refresher-triggered="refreshStatus" :lower-threshold="100"
+			:scroll-with-animation="true" refresher-enabled="true" @refresherrefresh="onRefreshData"
+			@scrolltolower="onLoadData" @scroll="onScroll">
+			<view class="container">
+				<view v-for="item in listData" :key="item.id">
+					<view class="option">
+						<view class="main">
+							<view class="remark">{{item.remarkInfo || ''}}</view>
+							<view class="amount">{{$utils.formatValue(item.changeAmount)}}</view>
 						</view>
-						<u-line></u-line>
+						<u-row>
+							<u-col span="6">
+								<view class="sheet">{{item.relateOrderNo}}</view>
+							</u-col>
+							<u-col span="6">
+								<view class="time">{{item.createTime}}</view>
+							</u-col>
+						</u-row>
 					</view>
-					<u-loadmore v-if="listData.length" :status="loadStatus" />
-					<u-empty v-if="!listData.length" mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png"
-						marginTop="80rpx"></u-empty>
+					<u-line></u-line>
 				</view>
-			</scroll-view>
-		</view>
+				<u-loadmore v-if="listData.length" :status="loadStatus" />
+				<view v-else class="empty">
+					<u-empty mode="data" icon="http://cdn.uviewui.com/uview/empty/data.png"></u-empty>
+				</view>
+			</view>
+		</scroll-view>
 		<u-back-top :scroll-top="realScrollTop" @click="onBackTop"></u-back-top>
-	</view>
+	</layout>
 </template>
 
 <script>
+	import layout from '@/components/layout/index.vue';
 	export default {
 		data() {
 			return {
@@ -74,16 +74,16 @@
 				size: 50,
 				pages: 1,
 				listData: [],
-				isLoading: false,
-				scrollTop: 0,
-				realScrollTop: 0,
 				refreshStatus: false,
-				loadStatus: 'loadmore'
+				isLoading: false,
+				loadStatus: 'loadmore',
+				scrollTop: 0,
+				realScrollTop: 0
 			}
 		},
 		onLoad() {
 			this.fetchBalance();
-			this.fetchChangeList();
+			this.fetchList();
 		},
 		methods: {
 			// 获取余额
@@ -98,12 +98,12 @@
 				})
 			},
 			// 获取变更记录
-			fetchChangeList() {
-				this.isLoading = true;
+			fetchList() {
 				uni.showLoading({
 					title: "加载中",
 					mask: true
 				})
+				this.isLoading = true;
 				this.$request({
 					type: "POST",
 					url: "/api/authority/orgAccountApi/changeRecord/bizPage",
@@ -140,15 +140,14 @@
 			onRefreshData() {
 				this.refreshStatus = true;
 				this.page = 1;
-				this.listData = [];
 				this.fetchBalance();
-				this.fetchChangeList();
+				this.fetchList();
 			},
 			// 加载数据
 			onLoadData() {
 				if (!this.isLoading && this.page < this.pages) {
 					this.page += 1;
-					this.fetchChangeList();
+					this.fetchList();
 				}
 			},
 			// 返回顶部
@@ -158,6 +157,9 @@
 					this.scrollTop = 0;
 				});
 			}
+		},
+		components: {
+			layout
 		}
 	}
 </script>
@@ -167,92 +169,84 @@
 		height: 100%;
 		overflow: hidden;
 
-		.layout {
-			display: flex;
-			flex-direction: column;
-			height: 100%;
+		.material {
+			color: #fff;
+			background-color: #377cfd;
 
-			.material {
-				color: #fff;
-				background-color: #377cfd;
+			.balance {
+				padding: 20rpx 0;
 
-				.balance {
-					padding: 20rpx 0;
-
-					.title {
-						font-size: 24rpx;
-						text-align: center;
-					}
-
-					.amount {
-						margin-top: 12rpx;
-						text-align: center;
-					}
+				.title {
+					font-size: 24rpx;
+					text-align: center;
 				}
 
-				.tab {
-					background-color: rgba(255, 255, 255, .5);
+				.amount {
+					margin-top: 12rpx;
+					text-align: center;
+				}
+			}
 
-					.column {
-						padding: 8rpx 0;
-						text-align: center;
+			.tab {
+				background-color: rgba(255, 255, 255, .5);
 
-						text {
-							display: inline-block;
-							padding: 20rpx 8rpx 16rpx;
-							color: rgba(255, 255, 255, .6);
-							border-bottom: 4rpx solid transparent;
+				.column {
+					padding: 8rpx 0;
+					text-align: center;
 
-							&.active {
-								color: #fff;
-								border-color: #f1f1f1;
-							}
+					text {
+						display: inline-block;
+						padding: 20rpx 8rpx 16rpx;
+						color: rgba(255, 255, 255, .6);
+						border-bottom: 4rpx solid transparent;
+
+						&.active {
+							color: #fff;
+							border-color: #f1f1f1;
 						}
 					}
 				}
 			}
+		}
+
+		.scroll {
+			height: 100%;
 
 			.container {
-				flex: 1;
-				height: 100%;
-				overflow: hidden;
+				padding-bottom: calc(env(safe-area-inset-bottom) / 1.5);
 
-				.scroll {
-					height: 100%;
+				.option {
+					padding: 20rpx;
+					background-color: #fff;
 
-					.list {
-						padding-bottom: calc(env(safe-area-inset-bottom) / 1.5);
+					.main {
+						display: flex;
+						flex-direction: row;
 
-						.info {
-							padding: 20rpx;
-							background-color: #fff;
+						.remark {
+							flex: 1;
+						}
 
-							.main {
-								display: flex;
-								flex-direction: row;
-
-								.remark {
-									flex: 1;
-								}
-
-								.amount {
-									width: 200rpx;
-									text-align: right;
-								}
-							}
-
-							.sheet {
-								font-size: 24rpx;
-								color: #999;
-							}
-
-							.time {
-								font-size: 24rpx;
-								color: #999;
-								text-align: right;
-							}
+						.amount {
+							width: 200rpx;
+							text-align: right;
 						}
 					}
+
+					.sheet {
+						font-size: 24rpx;
+						color: #999;
+					}
+
+					.time {
+						font-size: 24rpx;
+						color: #999;
+						text-align: right;
+					}
+				}
+
+				.empty {
+					padding-top: 100rpx;
 				}
 			}
 		}

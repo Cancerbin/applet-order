@@ -153,6 +153,12 @@
 			"root": "packageHome",
 			"pages": [
 				{
+					"path": "pages/spike/index",
+					"style": {
+						"navigationBarTitleText": "秒杀"
+					}
+				},
+				{
 					"path": "pages/coupon/index",
 					"style": {
 						"navigationBarTitleText": "领券",
