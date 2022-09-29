@@ -29,7 +29,7 @@
 						<!-- 栏目标题 -->
 						<title v-if="item.modelType === '3'" :detail="item" @onClick="onJump" />
 						<!-- 商品展示 -->
-						<show-case v-if="item.modelType === '5'" :detail="item" />
+						<showcase v-if="item.modelType === '5'" :detail="item" />
 					</view>
 				</view>
 			</scroll-view>
@@ -42,6 +42,7 @@
 	import navigation from '@/components/navigation/index.vue';
 	import advertise from '@/components/advertise/index.vue';
 	import title from '@/components/title/index.vue';
+	import showcase from '@/components/showcase/index.vue';
 	export default {
 		data() {
 			return {
@@ -154,6 +155,16 @@
 						})
 						break;
 
+					case '3':
+						uni.navigateTo({
+							url: '/pages/home/activity/index?record=' + encodeURIComponent(
+								JSON.stringify({
+									...record,
+									modelNo: detail.modelNo
+								}))
+						})
+						break;
+
 					case '6':
 						uni.navigateTo({
 							url: '/packageHome/pages/spike/index'
@@ -187,7 +198,8 @@
 			advertise,
 			carousel,
 			navigation,
-			title
+			title,
+			showcase
 		}
 	}
 </script>
@@ -195,7 +207,6 @@
 <style lang="scss">
 	page {
 		height: 100%;
-		background-color: #fff;
 		overflow: hidden;
 
 		.container {

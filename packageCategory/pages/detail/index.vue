@@ -114,6 +114,9 @@
 		},
 		onLoad(options) {
 			const detail = JSON.parse(decodeURIComponent(options.detail));
+			const cacheList = uni.getStorageSync('cacheList') || [];
+			const cIndex = cacheList.findIndex(item => item.itemNo === detail.itemNo);
+			detail.itemQty = cIndex >= 0 ? cacheList[cIndex].itemQty : 0;
 			this.detail = detail;
 			this.number = detail.itemQty;
 		},
