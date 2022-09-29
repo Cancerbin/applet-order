@@ -232,7 +232,7 @@ export default {
 	// 更新购物车
 	updateCart() {
 		const cacheList = uni.getStorageSync('cacheList') || [];
-		const tabIndex = 2;
+		const tabIndex = 3;
 		let count = 0;
 		cacheList.forEach(item => {
 			count += item.itemQty;

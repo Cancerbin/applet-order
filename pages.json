@@ -40,6 +40,14 @@
 			}
 		},
 		{
+			"path": "pages/merchant/index",
+			"style": {
+				"navigationBarTitleText": "商家直配",
+				"enablePullDownRefresh": true,
+				"onReachBottomDistance": 50
+			}
+		},
+		{
 			"path": "pages/cart/index",
 			"style": {
 				"navigationBarTitleText": "购物车"
@@ -207,6 +215,12 @@
 				"text": "类别",
 				"iconPath": "static/tab/category.png",
 				"selectedIconPath": "static/tab/category_a.png"
+			},
+			{
+				"pagePath": "pages/merchant/index",
+				"text": "商家直配",
+				"iconPath": "static/tab/delivey.png",
+				"selectedIconPath": "static/tab/delivey_a.png"
 			},
 			{
 				"pagePath": "pages/cart/index",
