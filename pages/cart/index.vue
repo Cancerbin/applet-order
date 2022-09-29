@@ -203,7 +203,7 @@
 					return;
 				}
 				uni.showLoading({
-					title: "结算中",
+					title: "校验中",
 					mask: true
 				})
 				this.$request({

@@ -114,8 +114,10 @@
 						} else {
 							this.listData = this.listData.concat(records);
 						}
-						this.limitTime = new Date(res.extra.endDate.replace(/-/g, '/')).getTime() - new Date()
-							.getTime();
+						if (res?.extra?.endDate) {
+							this.limitTime = new Date(res.extra.endDate.replace(/-/g, '/')).getTime() - new Date()
+								.getTime();
+						}
 						this.loadStatus = this.page < pages ? 'loadmore' : 'nomore';
 						uni.hideLoading();
 					}

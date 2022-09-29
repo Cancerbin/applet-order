@@ -56,6 +56,14 @@
 		onShow() {
 			this.$utils.updateCart();
 		},
+		// 分享小程序
+		onShareAppMessage() {
+			return {
+				title: '订货小程序分享',
+				path: 'pages/home/index',
+				imageUrl: ''
+			}
+		},
 		methods: {
 			// 获取首页模块
 			fetchModule() {

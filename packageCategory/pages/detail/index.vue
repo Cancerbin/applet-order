@@ -119,6 +119,15 @@
 			detail.itemQty = cIndex >= 0 ? cacheList[cIndex].itemQty : 0;
 			this.detail = detail;
 			this.number = detail.itemQty;
+			uni.hideHomeButton();
+		},
+		// 分享小程序
+		onShareAppMessage() {
+			return {
+				title: '订货商品分享',
+				path:  `/packageCategory/pages/detail/index?detail=${encodeURIComponent(JSON.stringify(this.detail))}`,
+				imageUrl: ''
+			}
 		},
 		methods: {
 			// 跳转路由
