@@ -71,7 +71,6 @@
 					title: '加载中',
 					mask: true
 				})
-				const userInfo = uni.getStorageSync('userInfo');
 				this.$request({
 					type: 'POST',
 					url: '/api/order/wechat/homeTemplateModel/queryHomeModel',

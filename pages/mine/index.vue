@@ -161,7 +161,7 @@
 					case 0:
 						url = '/packageMine/pages/group/index';
 						break;
-						
+
 					case 1:
 						url = '/packageMine/pages/coupon/index';
 						break;
@@ -183,16 +183,30 @@
 			},
 			// 监听系统服务点击事件
 			onServiceEvent(index) {
-				if (index === 0) {
-					uni.showModal({
-						title: '提示',
-						content: '是否确定退出登录',
-						success: (res) => {
-							if (res.confirm) {
-								this.$utils.logout();
+				switch (index) {
+					case 0:
+						uni.showModal({
+							title: '提示',
+							content: '是否确定退出登录',
+							success: (res) => {
+								if (res.confirm) {
+									this.$utils.logout();
+								}
 							}
-						}
-					});
+						});
+						break;
+
+					case 2:
+						const accountInfo = uni.getAccountInfoSync();
+						uni.showModal({
+							title: '提示',
+							content: `当前版本：${accountInfo.miniProgram.version}`,
+							showCancel: false
+						});
+						break;
+
+					default:
+						break;
 				}
 			},
 			// 格式化机构信息
