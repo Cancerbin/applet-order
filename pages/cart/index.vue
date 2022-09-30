@@ -3,7 +3,7 @@
 		<view v-if="listData.length">
 			<view class="delivery">
 				<view class="title">
-					<view class="text">{{formatTransBranchName()}}</view>
+					<view class="text">{{detail.transBranchName}}</view>
 					<view class="icon" @click="onDeleteAll">
 						<u-icon name="trash" size="48rpx"></u-icon>
 					</view>
@@ -73,11 +73,13 @@
 	export default {
 		data() {
 			return {
+				detail: {},
 				limitNumber: 0,
 				page: 1,
 				size: 20,
 				pages: 1,
 				listData: [],
+				scrollTop: 0,
 				iconStyle: {
 					fontSize: '28rpx',
 					color: '#f56c6c'
@@ -92,9 +94,19 @@
 			}
 		},
 		onShow() {
-			this.listData = uni.getStorageSync('cacheList') || [];
-			this.$utils.updateCart();
-			this.onLoadData();
+			this.page = 1;
+			this.limitNumber = 0;
+			this.listData = [];
+			this.fetchCart();
+		},
+		onPageScroll(e) {
+			this.scrollTop = e.scrollTop;
+		},
+		onPullDownRefresh() {
+			this.page = 1;
+			this.limitNumber = 0;
+			this.listData = [];
+			this.fetchCart();
 		},
 		onReachBottom() {
 			if (this.page < this.pages) {
@@ -103,6 +115,25 @@
 			}
 		},
 		methods: {
+			// 获取购物车数据
+			fetchCart() {
+				uni.showLoading({
+					title: "加载中",
+					mask: true
+				})
+				this.$request({
+					url: '/api/order/wechat/shopCart/showShopCart'
+				}).then(res => {
+					uni.stopPullDownRefresh();
+					if (res?.code === 0) {
+						this.detail = res.data[0];
+						this.listData = this.$utils.onSyncCache(this.$utils.onSyncCache(res.data.length ? res.data[
+							0].orderShopCartItemVOList : []));
+						this.onLoadData();
+						uni.hideLoading();
+					}
+				})
+			},
 			// 加载数据 
 			onLoadData() {
 				this.pages = Math.ceil(this.listData.length / this.size);
@@ -123,6 +154,7 @@
 									this.listData.splice(index, 1)
 									this.$utils.updateCache(item, 0);
 								})
+								this.onLoadData();
 							}
 						}
 					});
@@ -144,6 +176,7 @@
 			onChangeChecked(record, index) {
 				this.listData[index].checked = !record.checked;
 				uni.setStorageSync('cacheList', this.listData);
+				this.$forceUpdate();
 			},
 			// 修改数量
 			onModifyNumber(index, number) {
@@ -159,6 +192,7 @@
 					.then(number => {
 						this.listData.splice(index, 1);
 						this.$utils.updateCache(record, number);
+						this.onLoadData();
 					})
 			},
 			// 全选所有商品事件
@@ -268,7 +302,7 @@
 			},
 			// 格式化起送价
 			formatDeliveryPrice() {
-				return uni.getStorageSync('deliveryPrice');
+				return this.detail.mixDeliveryAmt;
 			},
 			// 格式化选中状态
 			formatChecked(flag) {

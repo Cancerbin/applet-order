@@ -1,13 +1,13 @@
 <template>
-	<view class="module" @click.stop="onClick">
-		<view class="picture">
+	<view class="module">
+		<view class="picture" @click.stop="onClick">
 			<u-image :src="$utils.formatPicture(detail.picUrl)" :lazyLoad="false" :fade="false" mode="aspectFit"
 				width="208rpx" height="208rpx">
 			</u-image>
 			<view class="cover" v-if="parseFloat(detail.inventoryQuantity) <= 0">补货中</view>
 		</view>
 		<view class="material">
-			<view class="base">
+			<view class="base" @click.stop="onClick">
 				<view class="title">{{detail.itemName}}</view>
 				<view class="date">生产日期：{{detail.productionStart || '见包装'}}</view>
 			</view>

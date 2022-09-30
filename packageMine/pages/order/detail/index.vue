@@ -350,7 +350,7 @@
 								mask: true
 							})
 							this.$request({
-								url: '/api/order/wechat/shopCart/reorderByNoNew',
+								url: '/api/order/wechat/shopCart/reorderByNo',
 								type: 'POST',
 								data: {
 									sheetNo: this.sheetNo
@@ -363,13 +363,29 @@
 										mask: true,
 										duration: 2000
 									})
-									res.data.forEach(item => {
-										let number = parseFloat(item.reorderCount);
-										delete item.reorderCount;
-										this.$utils.updateCache(item, number);
-									})
 								}
 							})
+							// this.$request({
+							// 	url: '/api/order/wechat/shopCart/reorderByNoNew',
+							// 	type: 'POST',
+							// 	data: {
+							// 		sheetNo: this.sheetNo
+							// 	}
+							// }).then(res => {
+							// 	if (res?.code === 0) {
+							// 		uni.showToast({
+							// 			icon: "success",
+							// 			title: '成功加入',
+							// 			mask: true,
+							// 			duration: 2000
+							// 		})
+							// 		res.data.forEach(item => {
+							// 			let number = parseFloat(item.reorderCount);
+							// 			delete item.reorderCount;
+							// 			this.$utils.updateCache(item, number);
+							// 		})
+							// 	}
+							// })
 						}
 					}
 				});

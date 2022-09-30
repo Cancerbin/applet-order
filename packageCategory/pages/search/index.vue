@@ -74,7 +74,7 @@
 			}
 		},
 		methods: {
-			// 获取变更记录
+			// 获取商品记录
 			fetchList() {
 				uni.showLoading({
 					title: "加载中",
@@ -99,11 +99,12 @@
 						const {
 							records = [], pages
 						} = res.data;
+						const finishedData = this.$utils.onSyncNumber(records);
 						this.pages = pages;
 						if (this.page === 1) {
-							this.listData = records;
+							this.listData = finishedData;
 						} else {
-							this.listData = this.listData.concat(records);
+							this.listData = this.listData.concat(finishedData);
 						}
 						this.loadStatus = this.page < pages ? 'loadmore' : 'nomore';
 						uni.hideLoading();
@@ -141,7 +142,7 @@
 					success: res => {
 						this.isHistory = false;
 						this.condition = res.result;
-						this.fetchList();
+						this.onSearch();
 					}
 				})
 			},

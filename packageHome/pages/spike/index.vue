@@ -12,11 +12,11 @@
 			<view class="limit" v-if="activityList.length">
 				<u-count-down :time="limitTime" autoStart @change="onUpdateTime">
 					<view class="time">
-						<text>距活动{{activity.status === 0 ? '开始' : '结束'}}：</text>
-						<text class="node" v-if="activity.status === 0">
+						<text>距活动{{activityItem.status === 0 ? '开始' : '结束'}}：</text>
+						<text class="node">
 							{{ timeData.days > 9 ? timeData.days: '0' + timeData.days}}
 						</text>
-						<text v-if="activity.status === 0">天</text>
+						<text>天</text>
 						<text class="node">
 							{{ timeData.hours > 9 ? timeData.hours: '0' + timeData.hours}}
 						</text>时

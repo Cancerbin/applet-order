@@ -84,6 +84,7 @@
 						this.moduleList = res.data;
 						uni.hideLoading();
 						this.fetchIntegral();
+						this.fetchCartData();
 					}
 				})
 			},
@@ -100,6 +101,17 @@
 							icon: 'success',
 							title: '登录积分领取成功'
 						})
+					}
+				})
+			},
+			// 获取购物车数据
+			fetchCartData() {
+				this.$request({
+					url: '/api/order/wechat/shopCart/showShopCart',
+					intercept: false
+				}).then(res => {
+					if (res?.code === 0) {
+						this.$utils.onSyncCache(res.data.length ? res.data[0].orderShopCartItemVOList : [])
 					}
 				})
 			},

@@ -207,10 +207,23 @@ export default {
 		}
 		return realityValue;
 	},
+	// 同步缓存
+	onSyncCache(array) {
+		const cacheList = uni.getStorageSync('cacheList') || [];
+		array.forEach(item => {
+			const cacheIndex = cacheList.findIndex(row => row.itemNo === item.itemNo);
+			item.itemQty = parseFloat(item.itemQty || 0);
+			item.checked = cacheIndex < 0 ? true : cacheList[cacheIndex].checked;
+		})
+		uni.setStorageSync('cacheList', array);
+		this.updateCart();
+		return array;
+	},
 	// 更新商品缓存
 	updateCache(record, number) {
 		const cacheList = uni.getStorageSync('cacheList') || [];
 		const index = cacheList.findIndex(item => item.itemNo === record.itemNo);
+		getApp().globalData.cache[record.itemNo] = number;
 		if (index >= 0) {
 			if (number) {
 				cacheList[index].itemQty = number;
@@ -225,6 +238,16 @@ export default {
 					checked: true
 				});
 			}
+		}
+		uni.setStorageSync('cacheList', cacheList);
+		this.updateCart();
+	},
+	// 删除商品缓存
+	deleteCache(record) {
+		const cacheList = uni.getStorageSync('cacheList') || [];
+		const index = cacheList.findIndex(item => item.itemNo === record.itemNo);
+		if (index >= 0) {
+			cacheList.splice(index, 1);
 		}
 		uni.setStorageSync('cacheList', cacheList);
 		this.updateCart();

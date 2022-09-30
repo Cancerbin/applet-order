@@ -317,7 +317,7 @@
 									})
 									// TODO 清除提交商品缓存
 									this.settleList.forEach(item => {
-										this.$utils.updateCache(item, 0)
+										this.$utils.deleteCache(item)
 									})
 									this.sheetNo = res.data.sheetNo;
 									if (this.paymentType === 'cz') {

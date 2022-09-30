@@ -1,14 +1,29 @@
 <script>
 	export default {
+		data() {
+			return {
+				counter: {}
+			}
+		},
+		globalData: {
+			clock: null,
+			// 缓存队列
+			cache: {}
+		},
 		onLaunch: function() {
 			this.onVerifyLogin();
 		},
 		onShow: function() {
 			// 检测版本更新
 			this.onCheckVersion();
+			// 更新购物车
+			this.globalData.clock = setInterval(() => {
+				this.updateCart();
+			}, 1500);
 		},
 		onHide: function() {
-			console.log('App Hide')
+			clearInterval(this.globalData.clock);
+			this.globalData.clock = null;
 		},
 		methods: {
 			// 检测登录状态
@@ -50,6 +65,82 @@
 						}
 					})
 				}
+			},
+			// 更新购物车
+			updateCart() {
+				const requestList = Object.keys(this.globalData.cache);
+				if (requestList.length) {
+					requestList.forEach(item => {
+						const number = this.globalData.cache[item];
+						if (number) {
+							this.updateNumber(item, number);
+						} else {
+							this.deleteItem(item);
+						}
+					})
+				}
+			},
+			// 更新数量
+			updateNumber(itemNo, number) {
+				this.$request({
+					type: 'POST',
+					url: '/api/order/wechat/shopCart',
+					data: {
+						itemNo: itemNo,
+						itemQty: number,
+						branchNo: uni.getStorageSync('branchNo'),
+						transBranchNo: uni.getStorageSync('transBranchNo'),
+						transType: 0,
+					},
+					intercept: false
+				}).then(res => {
+					if (res?.code === 0) {
+						const cacheList = uni.getStorageSync('cacheList') || [];
+						const cacheIndex = cacheList.findIndex(row => row.itemNo === itemNo);
+						if (cacheIndex >= 0 && cacheList[cacheIndex].itemQty === number) {
+							delete this.globalData.cache[itemNo];
+							delete this.counter[itemNo];
+						}
+					} else if (res.code === -20) {
+						delete this.globalData.cache[itemNo];
+					} else {
+						if (this.counter[itemNo] === undefined) {
+							this.counter[itemNo] = 0;
+						} else if (this.counter[itemNo] > 2) {
+							delete this.globalData.cache[itemNo];
+							delete this.counter[itemNo];
+						} else {
+							this.counter[itemNo] += 1;
+						}
+					}
+				})
+			},
+			deleteItem(itemNo) {
+				this.$request({
+					type: 'DELETE',
+					url: `/api/order/wechat/shopCart/deleteItem/0/${uni.getStorageSync('transBranchNo')}/${itemNo}`,
+					intercept: false
+				}).then(res => {
+					if (res?.code === 0) {
+						const cacheList = uni.getStorageSync('cacheList') || [];
+						const cacheIndex = cacheList.findIndex(row => row.itemNo === itemNo);
+						if (cacheIndex < 0) {
+							delete this.globalData.cache[itemNo];
+							delete this.counter[itemNo];
+						}
+					} else if (res.code === -20) {
+						delete this.globalData.cache[itemNo];
+					} else {
+						if (this.counter[itemNo] === undefined) {
+							this.counter[itemNo] = 0;
+						} else if (this.counter[itemNo] > 2) {
+							delete this.globalData.cache[itemNo];
+							delete this.counter[itemNo];
+						} else {
+							this.counter[itemNo] += 1;
+						}
+					}
+				})
 			}
 		}
 	}

@@ -235,20 +235,21 @@
 					return;
 				}
 
-				if (account && account !== this.account && cacheList.length) {
-					uni.showModal({
-						title: '提示',
-						content: '切换帐号会清空购物车数据，是否继续？',
-						success: (res) => {
-							if (res.confirm) {
-								uni.removeStorageSync('cacheList');
-								this.onVerifyWxAccount();
-							}
-						}
-					});
-				} else {
-					this.onVerifyWxAccount();
-				}
+				// if (account && account !== this.account && cacheList.length) {
+				// 	uni.showModal({
+				// 		title: '提示',
+				// 		content: '切换帐号会清空购物车数据，是否继续？',
+				// 		success: (res) => {
+				// 			if (res.confirm) {
+				// 				uni.removeStorageSync('cacheList');
+				// 				this.onVerifyWxAccount();
+				// 			}
+				// 		}
+				// 	});
+				// } else {
+				// 	this.onVerifyWxAccount();
+				// }
+				this.onVerifyWxAccount();
 			},
 			onJump() {
 				uni.showToast({
