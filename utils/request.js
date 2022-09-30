@@ -1,6 +1,6 @@
 export const request = (options) => {
-	// const baseUrl = "https://test-passport.dbs12580.com";
-	const baseUrl = "https://saas.dbs12580.com";
+	const baseUrl = "https://test-passport.dbs12580.com";
+	// const baseUrl = "https://saas.dbs12580.com";
 	// const baseUrl = "http://192.168.101.121:8760";
 	const {
 		type = 'GET', // 默认为GET请求
